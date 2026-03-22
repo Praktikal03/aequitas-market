@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse — Aequitas Market</title>
+  <link rel="stylesheet" href="../css/design-system.css">
+  <style>
+    .browse-header {
+      background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 60%, var(--navy-mid) 100%);
+      padding: var(--space-10) 0;
+      color: var(--white);
+    }
+    .browse-header h1 {
+      color: var(--white);
+      margin-bottom: var(--space-5);
+    }
+
+    .search-bar {
+      display: flex;
+      gap: var(--space-3);
+      max-width: 600px;
+    }
+    .search-bar .form-input {
+      flex: 1;
+      border: none;
+      padding: var(--space-4);
+      font-size: var(--text-base);
+      border-radius: var(--radius-md);
+    }
+    .search-bar .btn {
+      padding: var(--space-4) var(--space-6);
+    }
+
+    .browse-content {
+      padding: var(--space-8) 0 var(--space-16);
+    }
+
+    .filters-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .category-pills {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+    .category-pill {
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      border: 2px solid var(--gray-200);
+      background: var(--white);
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+    }
+    .category-pill:hover {
+      border-color: var(--gray-400);
+      color: var(--navy);
+    }
+    .category-pill--active {
+      border-color: var(--amber);
+      background: rgba(212, 168, 67, 0.08);
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .sort-select {
+      padding: var(--space-2) var(--space-4);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--gray-600);
+      background: var(--white);
+      cursor: pointer;
+    }
+
+    .results-info {
+      font-size: var(--text-sm);
+      color: var(--gray-500);
+      margin-bottom: var(--space-4);
+    }
+
+    /* Product Cards */
+    .product-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-base);
+      text-decoration: none;
+      display: block;
+    }
+    .product-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+    .product-card__image-wrap {
+      position: relative;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: var(--gray-100);
+    }
+    .product-card__image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--transition-slow);
+    }
+    .product-card:hover .product-card__image {
+      transform: scale(1.05);
+    }
+    .product-card__image--placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: var(--gray-300);
+      width: 100%;
+      height: 100%;
+    }
+    .product-card__founding-badge {
+      position: absolute;
+      top: var(--space-2);
+      left: var(--space-2);
+    }
+    .product-card__body {
+      padding: var(--space-4) var(--space-5) var(--space-5);
+    }
+    .product-card__category {
+      font-size: var(--text-xs);
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-1);
+    }
+    .product-card__title {
+      font-weight: 600;
+      font-size: var(--text-base);
+      color: var(--gray-800);
+      margin-bottom: var(--space-2);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .product-card__bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .product-card__price {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .product-card__seller {
+      font-size: var(--text-xs);
+      color: var(--gray-500);
+    }
+    .product-card__shipping {
+      font-size: var(--text-xs);
+      color: var(--success);
+      margin-top: var(--space-1);
+    }
+
+    .load-more {
+      text-align: center;
+      margin-top: var(--space-8);
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <!-- Header with search -->
+  <div class="browse-header">
+    <div class="container">
+      <h1 id="browse-title">Browse the Market</h1>
+      <div class="search-bar">
+        <input type="text" id="search-input" class="form-input" placeholder="Search for anything...">
+        <button class="btn btn--gold" onclick="performSearch()">Search</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="browse-content">
+    <div class="container">
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="category-pills" id="category-pills">
+          <button class="category-pill category-pill--active" data-category="all" onclick="filterCategory('all')">All</button>
+          <button class="category-pill" data-category="clothing" onclick="filterCategory('clothing')">Clothing</button>
+          <button class="category-pill" data-category="electronics" onclick="filterCategory('electronics')">Electronics</button>
+          <button class="category-pill" data-category="vintage" onclick="filterCategory('vintage')">Vintage</button>
+          <button class="category-pill" data-category="art" onclick="filterCategory('art')">Art & Handmade</button>
+          <button class="category-pill" data-category="collectibles" onclick="filterCategory('collectibles')">Collectibles</button>
+          <button class="category-pill" data-category="general" onclick="filterCategory('general')">General</button>
+        </div>
+        <select class="sort-select" id="sort-select" onchange="performSearch()">
+          <option value="newest">Newest First</option>
+          <option value="price_low">Price: Low to High</option>
+          <option value="price_high">Price: High to Low</option>
+        </select>
+      </div>
+
+      <div class="results-info" id="results-info"></div>
+
+      <!-- Loading -->
+      <div id="loading" class="empty-state">
+        <div class="spinner" style="margin:0 auto var(--space-4);"></div>
+        <p>Loading listings...</p>
+      </div>
+
+      <!-- Product Grid -->
+      <div class="product-grid" id="product-grid" style="display:none;"></div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state" style="display:none;">
+        <div class="empty-state__icon">🔍</div>
+        <div class="empty-state__title">No listings found</div>
+        <div class="empty-state__text" id="empty-text">Check back soon — sellers are adding new items every day.</div>
+        <button class="btn btn--outline" onclick="filterCategory('all')">View All Listings</button>
+      </div>
+
+      <!-- Load More -->
+      <div class="load-more" id="load-more" style="display:none;">
+        <button class="btn btn--outline btn--lg" id="load-more-btn" onclick="loadMore()">Load More</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container text-center" style="padding:var(--space-6) 0;">
+      <p style="font-size:var(--text-sm);margin:0;">&copy; 2026 Praktikal 03, LLC — Astoria, Oregon</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/navbar.js"></script>
+
+  <script>
+    let currentCategory = 'all';
+    let currentSearch = '';
+    let currentOffset = 0;
+    const PAGE_SIZE = 24;
+    let allLoaded = false;
+
+    // Check URL params for pre-selected category
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('category')) {
+      currentCategory = params.get('category');
+    }
+    if (params.get('q')) {
+      currentSearch = params.get('q');
+      document.getElementById('search-input').value = currentSearch;
+    }
+
+    // Initial load
+    loadListings();
+
+    // Search on Enter
+    document.getElementById('search-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') performSearch();
+    });
+
+    function performSearch() {
+      currentSearch = document.getElementById('search-input').value.trim();
+      currentOffset = 0;
+      allLoaded = false;
+      loadListings();
+    }
+
+    function filterCategory(category) {
+      currentCategory = category;
+      currentOffset = 0;
+      allLoaded = false;
+
+      // Update pills
+      document.querySelectorAll('.category-pill').forEach(pill => {
+        pill.classList.toggle('category-pill--active', pill.dataset.category === category);
+      });
+
+      // Update title
+      if (category === 'all') {
+        document.getElementById('browse-title').textContent = 'Browse the Market';
+      } else {
+        document.getElementById('browse-title').textContent = getCategoryLabel(category);
+      }
+
+      loadListings();
+    }
+
+    async function loadListings(append = false) {
+      if (!append) {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('product-grid').style.display = 'none';
+        document.getElementById('empty-state').style.display = 'none';
+        document.getElementById('load-more').style.display = 'none';
+      }
+
+      const { data, error } = await getActiveListings(
+        currentCategory,
+        currentSearch || null,
+        PAGE_SIZE,
+        currentOffset
+      );
+
+      document.getElementById('loading').style.display = 'none';
+
+      if (error) {
+        console.error('Error loading listings:', error);
+        return;
+      }
+
+      const grid = document.getElementById('product-grid');
+
+      if (!data || data.length === 0) {
+        if (!append) {
+          document.getElementById('empty-state').style.display = 'block';
+          if (currentSearch) {
+            document.getElementById('empty-text').textContent =
+              `No results for "${currentSearch}". Try a different search term.`;
+          }
+        }
+        allLoaded = true;
+        document.getElementById('load-more').style.display = 'none';
+        return;
+      }
+
+      // Sort client-side based on selection
+      const sortVal = document.getElementById('sort-select').value;
+      if (sortVal === 'price_low') {
+        data.sort((a, b) => a.price - b.price);
+      } else if (sortVal === 'price_high') {
+        data.sort((a, b) => b.price - a.price);
+      }
+
+      const html = data.map(listing => `
+        <a href="/pages/listing.html?id=${listing.id}" class="product-card">
+          <div class="product-card__image-wrap">
+            ${listing.images && listing.images.length > 0
+              ? `<img src="${listing.images[0]}" alt="${listing.title}" class="product-card__image" loading="lazy">`
+              : `<div class="product-card__image--placeholder">📷</div>`
+            }
+            ${listing.seller_is_founding
+              ? `<span class="product-card__founding-badge badge badge--founding">Founding Seller</span>`
+              : ''
+            }
+          </div>
+          <div class="product-card__body">
+            <div class="product-card__category">${getCategoryLabel(listing.category)}</div>
+            <div class="product-card__title">${listing.title}</div>
+            <div class="product-card__bottom">
+              <div>
+                <div class="product-card__price">${formatPrice(listing.price)}</div>
+                ${listing.shipping_cost == 0
+                  ? '<div class="product-card__shipping">Free Shipping</div>'
+                  : `<div class="product-card__shipping">+${formatPrice(listing.shipping_cost)} shipping</div>`
+                }
+              </div>
+              <div class="product-card__seller">${listing.seller_shop_name || listing.seller_name}</div>
+            </div>
+          </div>
+        </a>
+      `).join('');
+
+      if (append) {
+        grid.innerHTML += html;
+      } else {
+        grid.innerHTML = html;
+      }
+
+      grid.style.display = 'grid';
+
+      // Results count
+      const total = append ? grid.children.length : data.length;
+      document.getElementById('results-info').textContent =
+        `Showing ${total} listing${total !== 1 ? 's' : ''}${currentSearch ? ` for "${currentSearch}"` : ''}`;
+
+      // Load more button
+      if (data.length < PAGE_SIZE) {
+        allLoaded = true;
+        document.getElementById('load-more').style.display = 'none';
+      } else {
+        document.getElementById('load-more').style.display = 'block';
+      }
+    }
+
+    function loadMore() {
+      if (allLoaded) return;
+      currentOffset += PAGE_SIZE;
+      const btn = document.getElementById('load-more-btn');
+      showLoading(btn, 'Loading...');
+      loadListings(true).then(() => hideLoading(btn));
+    }
+  </script>
+</body>
+</html>

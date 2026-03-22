@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listing — Aequitas Market</title>
+  <link rel="stylesheet" href="../css/design-system.css">
+  <style>
+    .listing-page {
+      padding: var(--space-8) 0 var(--space-16);
+    }
+    .listing-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: var(--space-8);
+      align-items: start;
+    }
+
+    /* Image Gallery */
+    .gallery {
+      position: sticky;
+      top: 80px;
+    }
+    .gallery__main {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--gray-100);
+      margin-bottom: var(--space-3);
+    }
+    .gallery__main img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .gallery__main--placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      color: var(--gray-300);
+    }
+    .gallery__thumbs {
+      display: flex;
+      gap: var(--space-2);
+      overflow-x: auto;
+      padding-bottom: var(--space-2);
+    }
+    .gallery__thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      flex-shrink: 0;
+      transition: border-color var(--transition-fast);
+    }
+    .gallery__thumb:hover {
+      border-color: var(--gray-400);
+    }
+    .gallery__thumb--active {
+      border-color: var(--amber);
+    }
+    .gallery__thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Details Panel */
+    .details {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-8);
+    }
+    .details__category {
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-400);
+      margin-bottom: var(--space-2);
+    }
+    .details__title {
+      font-size: var(--text-2xl);
+      margin-bottom: var(--space-4);
+      line-height: var(--leading-snug);
+    }
+    .details__price-row {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-3);
+      margin-bottom: var(--space-2);
+    }
+    .details__price {
+      font-family: var(--font-display);
+      font-size: var(--text-4xl);
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .details__shipping {
+      font-size: var(--text-sm);
+      color: var(--success);
+      font-weight: 500;
+    }
+    .details__condition {
+      font-size: var(--text-sm);
+      color: var(--gray-500);
+      margin-bottom: var(--space-6);
+    }
+
+    .details__divider {
+      border: none;
+      border-top: var(--border-light);
+      margin: var(--space-6) 0;
+    }
+
+    .details__description {
+      font-size: var(--text-base);
+      color: var(--gray-600);
+      line-height: var(--leading-relaxed);
+      white-space: pre-wrap;
+    }
+
+    /* Seller Card */
+    .seller-card {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      background: var(--gray-50);
+      border-radius: var(--radius-md);
+      margin-top: var(--space-6);
+    }
+    .seller-card__avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--text-lg);
+      flex-shrink: 0;
+    }
+    .seller-card__info {
+      flex: 1;
+    }
+    .seller-card__name {
+      font-weight: 600;
+      color: var(--gray-800);
+      font-size: var(--text-sm);
+    }
+    .seller-card__meta {
+      font-size: var(--text-xs);
+      color: var(--gray-500);
+    }
+
+    /* Trust badges */
+    .trust-badges {
+      display: flex;
+      gap: var(--space-4);
+      margin-top: var(--space-6);
+      padding-top: var(--space-4);
+      border-top: var(--border-light);
+    }
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-xs);
+      color: var(--gray-500);
+    }
+    .trust-badge__icon {
+      font-size: 1rem;
+    }
+
+    /* Buy Section */
+    .buy-section {
+      margin-top: var(--space-6);
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      font-size: var(--text-sm);
+      color: var(--gray-400);
+      margin-bottom: var(--space-6);
+    }
+    .breadcrumb a {
+      color: var(--gray-500);
+    }
+    .breadcrumb a:hover {
+      color: var(--coral);
+    }
+
+    @media (max-width: 768px) {
+      .listing-layout {
+        grid-template-columns: 1fr;
+      }
+      .gallery {
+        position: relative;
+        top: 0;
+      }
+      .details__price {
+        font-size: var(--text-3xl);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div class="listing-page">
+    <div class="container">
+      <!-- Loading -->
+      <div id="loading" class="empty-state">
+        <div class="spinner" style="margin:0 auto var(--space-4);"></div>
+        <p>Loading listing...</p>
+      </div>
+
+      <!-- Not found -->
+      <div id="not-found" class="empty-state" style="display:none;">
+        <div class="empty-state__icon">😕</div>
+        <div class="empty-state__title">Listing not found</div>
+        <div class="empty-state__text">This item may have been removed or sold.</div>
+        <a href="/pages/browse.html" class="btn btn--primary">Browse Listings</a>
+      </div>
+
+      <!-- Listing content -->
+      <div id="listing-content" style="display:none;">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+          <a href="/">Home</a> &nbsp;›&nbsp;
+          <a href="/pages/browse.html">Browse</a> &nbsp;›&nbsp;
+          <a href="#" id="breadcrumb-category">Category</a> &nbsp;›&nbsp;
+          <span id="breadcrumb-title">Listing</span>
+        </div>
+
+        <div class="listing-layout">
+          <!-- Gallery -->
+          <div class="gallery">
+            <div class="gallery__main" id="gallery-main"></div>
+            <div class="gallery__thumbs" id="gallery-thumbs"></div>
+          </div>
+
+          <!-- Details -->
+          <div class="details">
+            <div class="details__category" id="listing-category"></div>
+            <h1 class="details__title" id="listing-title"></h1>
+            <div class="details__price-row">
+              <span class="details__price" id="listing-price"></span>
+              <span class="details__shipping" id="listing-shipping"></span>
+            </div>
+            <div class="details__condition" id="listing-condition"></div>
+
+            <!-- Buy button -->
+            <div class="buy-section">
+              <button class="btn btn--primary btn--full btn--lg" id="buy-btn" onclick="handleBuy()">
+                Buy Now
+              </button>
+              <p style="text-align:center;font-size:var(--text-xs);color:var(--gray-400);margin-top:var(--space-2);">
+                Secured with full escrow protection
+              </p>
+            </div>
+
+            <hr class="details__divider">
+
+            <h4 style="margin-bottom:var(--space-3);font-size:var(--text-base);">Description</h4>
+            <div class="details__description" id="listing-description"></div>
+
+            <!-- Seller info -->
+            <div class="seller-card" id="seller-card">
+              <div class="seller-card__avatar" id="seller-avatar"></div>
+              <div class="seller-card__info">
+                <div class="seller-card__name" id="seller-name"></div>
+                <div class="seller-card__meta" id="seller-meta"></div>
+              </div>
+            </div>
+
+            <!-- Trust badges -->
+            <div class="trust-badges">
+              <div class="trust-badge">
+                <span class="trust-badge__icon">🔒</span>
+                <span>Full Escrow</span>
+              </div>
+              <div class="trust-badge">
+                <span class="trust-badge__icon">🚫</span>
+                <span>Zero Data Selling</span>
+              </div>
+              <div class="trust-badge">
+                <span class="trust-badge__icon">⚖️</span>
+                <span>Fair Fees</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container text-center" style="padding:var(--space-6) 0;">
+      <p style="font-size:var(--text-sm);margin:0;">&copy; 2026 Praktikal 03, LLC — Astoria, Oregon</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/navbar.js"></script>
+
+  <script>
+    let currentListing = null;
+
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const listingId = params.get('id');
+
+      if (!listingId) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('not-found').style.display = 'block';
+        return;
+      }
+
+      const { data: listing, error } = await getListing(listingId);
+
+      document.getElementById('loading').style.display = 'none';
+
+      if (error || !listing) {
+        document.getElementById('not-found').style.display = 'block';
+        return;
+      }
+
+      currentListing = listing;
+
+      // Update page title
+      document.title = `${listing.title} — Aequitas Market`;
+
+      // Show content
+      document.getElementById('listing-content').style.display = 'block';
+
+      // Breadcrumb
+      document.getElementById('breadcrumb-category').textContent = getCategoryLabel(listing.category);
+      document.getElementById('breadcrumb-category').href = `/pages/browse.html?category=${listing.category}`;
+      document.getElementById('breadcrumb-title').textContent = listing.title;
+
+      // Gallery
+      const mainGallery = document.getElementById('gallery-main');
+      const thumbs = document.getElementById('gallery-thumbs');
+
+      if (listing.images && listing.images.length > 0) {
+        mainGallery.innerHTML = `<img src="${listing.images[0]}" alt="${listing.title}" id="main-image">`;
+
+        if (listing.images.length > 1) {
+          thumbs.innerHTML = listing.images.map((url, i) => `
+            <div class="gallery__thumb ${i === 0 ? 'gallery__thumb--active' : ''}"
+                 onclick="switchImage('${url}', this)">
+              <img src="${url}" alt="Photo ${i + 1}">
+            </div>
+          `).join('');
+        }
+      } else {
+        mainGallery.innerHTML = '<div class="gallery__main--placeholder">📷</div>';
+      }
+
+      // Details
+      document.getElementById('listing-category').textContent = getCategoryLabel(listing.category);
+      document.getElementById('listing-title').textContent = listing.title;
+      document.getElementById('listing-price').textContent = formatPrice(listing.price);
+      document.getElementById('listing-shipping').textContent =
+        listing.shipping_cost == 0 ? 'Free Shipping' : `+${formatPrice(listing.shipping_cost)} shipping`;
+      document.getElementById('listing-condition').textContent =
+        `Condition: ${getConditionLabel(listing.condition)}`;
+      document.getElementById('listing-description').textContent = listing.description;
+
+      // Seller info
+      const sellerName = listing.seller_shop_name || listing.seller_name;
+      document.getElementById('seller-avatar').textContent =
+        (sellerName || 'S').charAt(0).toUpperCase();
+      document.getElementById('seller-name').innerHTML =
+        sellerName + (listing.seller_is_founding
+          ? ' <span class="badge badge--founding" style="font-size:9px;">Founding</span>'
+          : '');
+      document.getElementById('seller-meta').textContent =
+        `Selling ${getCategoryLabel(listing.category).toLowerCase()}`;
+
+      // If this is the seller's own listing, change buy button
+      const profile = await getCurrentProfile();
+      if (profile && profile.id === listing.seller_id) {
+        const buyBtn = document.getElementById('buy-btn');
+        buyBtn.textContent = 'Edit Listing';
+        buyBtn.onclick = () => window.location.href = `/pages/edit-listing.html?id=${listing.id}`;
+        buyBtn.className = 'btn btn--secondary btn--full btn--lg';
+      }
+    })();
+
+    function switchImage(url, thumbEl) {
+      document.getElementById('main-image').src = url;
+      document.querySelectorAll('.gallery__thumb').forEach(t => t.classList.remove('gallery__thumb--active'));
+      thumbEl.classList.add('gallery__thumb--active');
+    }
+
+    function getConditionLabel(condition) {
+      const labels = {
+        new: 'New',
+        like_new: 'Like New',
+        good: 'Good',
+        fair: 'Fair',
+        poor: 'Poor'
+      };
+      return labels[condition] || condition || 'Not specified';
+    }
+
+    async function handleBuy() {
+      const profile = await getCurrentProfile();
+      if (!profile) {
+        window.location.href = `/pages/login.html?redirect=/pages/listing.html?id=${currentListing.id}`;
+        return;
+      }
+
+      // Placeholder — Stripe checkout will be built in Session 4
+      alert('Checkout coming soon! Stripe integration is next.');
+    }
+  </script>
+</body>
+</html>

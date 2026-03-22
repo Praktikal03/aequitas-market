@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up — Aequitas Market</title>
+  <link rel="stylesheet" href="../css/design-system.css">
+  <style>
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+    .role-option {
+      padding: var(--space-4);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-align: center;
+      transition: all var(--transition-fast);
+      background: var(--white);
+    }
+    .role-option:hover {
+      border-color: var(--gray-400);
+    }
+    .role-option--active {
+      border-color: var(--amber);
+      background: rgba(212, 168, 67, 0.06);
+      box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.12);
+    }
+    .role-option__icon {
+      font-size: 1.5rem;
+      margin-bottom: var(--space-2);
+    }
+    .role-option__label {
+      font-weight: 600;
+      font-size: var(--text-sm);
+      color: var(--navy);
+    }
+    .role-option__desc {
+      font-size: var(--text-xs);
+      color: var(--gray-500);
+      margin-top: var(--space-1);
+    }
+    .seller-fields {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .seller-fields--visible {
+      display: block;
+    }
+    .founding-banner {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5);
+      margin-bottom: var(--space-6);
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+    }
+    .founding-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(212, 168, 67, 0.15) 0%, transparent 70%);
+    }
+    .founding-banner__title {
+      font-family: var(--font-display);
+      color: var(--amber);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin-bottom: var(--space-1);
+    }
+    .founding-banner__text {
+      font-size: var(--text-sm);
+      color: var(--gray-300);
+      margin-bottom: 0;
+    }
+    .founding-banner__rate {
+      color: var(--amber-light);
+      font-weight: 600;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .password-requirements {
+      font-size: var(--text-xs);
+      color: var(--gray-400);
+      margin-top: var(--space-1);
+    }
+    .password-requirements span {
+      transition: color var(--transition-fast);
+    }
+    .password-requirements .met {
+      color: var(--success);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card" style="max-width:520px;">
+      <!-- Logo -->
+      <div class="auth-card__logo">
+        <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+          <div class="navbar__logo-mark"></div>
+          <div style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:700;color:var(--navy);">
+            AEQUITAS <span style="color:var(--amber);">MARKET</span>
+          </div>
+        </a>
+      </div>
+
+      <h2 class="auth-card__title">Create Your Account</h2>
+      <p class="auth-card__subtitle">Join the fairest marketplace on the internet</p>
+
+      <!-- Alert container -->
+      <div id="alert-container"></div>
+
+      <!-- Founding 100 banner (shown for seller signups) -->
+      <div class="founding-banner" id="founding-banner" style="display:none;">
+        <div class="founding-banner__title">✦ Founding 100 Seller Program</div>
+        <p class="founding-banner__text">
+          You're signing up during our Founding 100 launch.
+          Lock in a <span class="founding-banner__rate">lifetime 8% fee</span> — 
+          that's 2% below our standard rate, forever.
+        </p>
+      </div>
+
+      <form id="signup-form" novalidate>
+        <!-- Role Selection -->
+        <div class="role-selector">
+          <div class="role-option role-option--active" data-role="buyer" onclick="selectRole('buyer')">
+            <div class="role-option__icon">🛍️</div>
+            <div class="role-option__label">Buy</div>
+            <div class="role-option__desc">Shop from sellers</div>
+          </div>
+          <div class="role-option" data-role="seller" onclick="selectRole('seller')">
+            <div class="role-option__icon">🏪</div>
+            <div class="role-option__label">Sell</div>
+            <div class="role-option__desc">List your items</div>
+          </div>
+        </div>
+
+        <!-- Common Fields -->
+        <div class="form-group">
+          <label for="name" class="form-label form-label--required">Full Name</label>
+          <input type="text" id="name" class="form-input" placeholder="Your name" required autocomplete="name">
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label form-label--required">Email</label>
+          <input type="email" id="email" class="form-input" placeholder="you@example.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label form-label--required">Password</label>
+          <input type="password" id="password" class="form-input" placeholder="At least 8 characters" required autocomplete="new-password" minlength="8">
+          <div class="password-requirements" id="password-reqs">
+            <span id="req-length">• 8+ characters</span> &nbsp;
+            <span id="req-upper">• 1 uppercase</span> &nbsp;
+            <span id="req-number">• 1 number</span>
+          </div>
+        </div>
+
+        <!-- Seller-only Fields -->
+        <div class="seller-fields" id="seller-fields">
+          <div class="form-group">
+            <label for="shop-name" class="form-label">Shop Name</label>
+            <input type="text" id="shop-name" class="form-input" placeholder="What should we call your shop?">
+            <span class="form-hint">You can change this later</span>
+          </div>
+
+          <div class="form-group">
+            <label for="category" class="form-label">Primary Category</label>
+            <select id="category" class="form-select">
+              <option value="">Select a category</option>
+              <option value="clothing">Clothing & Fashion</option>
+              <option value="electronics">Electronics & Tech</option>
+              <option value="vintage">Vintage & Antiques</option>
+              <option value="art">Art & Handmade</option>
+              <option value="collectibles">Collectibles</option>
+              <option value="general">General / Everything</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="instagram" class="form-label">Instagram Handle <span style="font-weight:400;color:var(--gray-400);">(optional)</span></label>
+            <input type="text" id="instagram" class="form-input" placeholder="@yourusername">
+          </div>
+
+          <div class="form-group">
+            <label for="bio" class="form-label">Tell us about what you sell <span style="font-weight:400;color:var(--gray-400);">(optional)</span></label>
+            <textarea id="bio" class="form-textarea" rows="3" placeholder="A few words about your shop and what you sell..."></textarea>
+          </div>
+        </div>
+
+        <button type="submit" id="signup-btn" class="btn btn--primary btn--full btn--lg">
+          Create Account
+        </button>
+      </form>
+
+      <div class="auth-card__footer">
+        <p>Already have an account? <a href="/pages/login.html">Sign in</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-client.js"></script>
+
+  <script>
+    let selectedRole = 'buyer';
+
+    // Check URL params for role pre-selection
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('role') === 'seller') {
+      selectRole('seller');
+    }
+
+    function selectRole(role) {
+      selectedRole = role;
+
+      // Update role selector UI
+      document.querySelectorAll('.role-option').forEach(opt => {
+        opt.classList.toggle('role-option--active', opt.dataset.role === role);
+      });
+
+      // Toggle seller fields
+      const sellerFields = document.getElementById('seller-fields');
+      const foundingBanner = document.getElementById('founding-banner');
+      if (role === 'seller') {
+        sellerFields.classList.add('seller-fields--visible');
+        foundingBanner.style.display = 'block';
+      } else {
+        sellerFields.classList.remove('seller-fields--visible');
+        foundingBanner.style.display = 'none';
+      }
+    }
+
+    // Password requirement validation (real-time)
+    document.getElementById('password').addEventListener('input', (e) => {
+      const pw = e.target.value;
+      document.getElementById('req-length').classList.toggle('met', pw.length >= 8);
+      document.getElementById('req-upper').classList.toggle('met', /[A-Z]/.test(pw));
+      document.getElementById('req-number').classList.toggle('met', /[0-9]/.test(pw));
+    });
+
+    // Handle signup
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('signup-btn');
+      const alertContainer = document.getElementById('alert-container');
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      // Validation
+      if (!name || !email || !password) {
+        showAlert(alertContainer, 'error', 'Please fill in all required fields.');
+        return;
+      }
+      if (password.length < 8) {
+        showAlert(alertContainer, 'error', 'Password must be at least 8 characters.');
+        return;
+      }
+
+      // Build metadata
+      const metadata = {
+        name: name,
+        role: selectedRole
+      };
+
+      showLoading(btn, 'Creating account...');
+
+      const { data, error } = await signUp(email, password, metadata);
+
+      if (error) {
+        hideLoading(btn);
+        showAlert(alertContainer, 'error', error.message);
+        return;
+      }
+
+      // If seller, update profile with additional fields
+      if (selectedRole === 'seller' && data.user) {
+        const updates = {
+          shop_name: document.getElementById('shop-name').value.trim() || name + "'s Shop",
+          category: document.getElementById('category').value || null,
+          instagram: document.getElementById('instagram').value.trim() || null,
+          bio: document.getElementById('bio').value.trim() || null,
+          is_founding: true,  // During Founding 100 period
+          fee_rate: 8.00,     // Founding rate
+          approved: false     // Requires admin approval
+        };
+
+        await supabaseClient
+          .from('profiles')
+          .update(updates)
+          .eq('id', data.user.id);
+      }
+
+      hideLoading(btn);
+
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        // Email confirmation required
+        showAlert(alertContainer, 'success',
+          'Account created! Check your email for a confirmation link.');
+      } else {
+        // Auto-confirmed (for development)
+        if (selectedRole === 'seller') {
+          showAlert(alertContainer, 'success',
+            'Account created! Your seller application is pending review.');
+          setTimeout(() => {
+            window.location.href = '/pages/seller-dashboard.html';
+          }, 2000);
+        } else {
+          window.location.href = '/pages/browse.html';
+        }
+      }
+    });
+
+    // Redirect if already logged in
+    (async () => {
+      const user = await getCurrentUser();
+      if (user) {
+        window.location.href = '/pages/browse.html';
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Dashboard — Aequitas Market</title>
+  <link rel="stylesheet" href="../css/design-system.css">
+  <style>
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-5);
+      margin-bottom: var(--space-8);
+    }
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-card__label {
+      font-size: var(--text-sm);
+      color: var(--gray-500);
+      margin-bottom: var(--space-2);
+    }
+    .stat-card__value {
+      font-family: var(--font-display);
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .stat-card__sub {
+      font-size: var(--text-xs);
+      color: var(--gray-400);
+      margin-top: var(--space-1);
+    }
+    .stat-card--highlight {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    }
+    .stat-card--highlight .stat-card__label { color: var(--gray-400); }
+    .stat-card--highlight .stat-card__value { color: var(--amber); }
+    .stat-card--highlight .stat-card__sub { color: var(--gray-400); }
+
+    .dashboard-section {
+      margin-bottom: var(--space-8);
+    }
+    .dashboard-section__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-5);
+    }
+    .dashboard-section__title {
+      font-size: var(--text-xl);
+    }
+
+    .listing-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      background: var(--white);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-3);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition-fast);
+    }
+    .listing-row:hover {
+      box-shadow: var(--shadow-md);
+    }
+    .listing-row__image {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      background: var(--gray-100);
+      flex-shrink: 0;
+    }
+    .listing-row__image--placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--gray-300);
+    }
+    .listing-row__info {
+      flex: 1;
+      min-width: 0;
+    }
+    .listing-row__title {
+      font-weight: 600;
+      font-size: var(--text-sm);
+      color: var(--gray-800);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .listing-row__meta {
+      font-size: var(--text-xs);
+      color: var(--gray-500);
+      margin-top: var(--space-1);
+    }
+    .listing-row__price {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--text-lg);
+      color: var(--navy);
+      flex-shrink: 0;
+    }
+    .listing-row__actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-shrink: 0;
+    }
+
+    .pending-banner {
+      background: var(--warning-light);
+      border: 1px solid #fde68a;
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5);
+      margin-bottom: var(--space-6);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--text-sm);
+      color: #854d0e;
+    }
+    .pending-banner__icon {
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .welcome-header {
+      margin-bottom: var(--space-8);
+    }
+    .welcome-header h1 {
+      font-size: var(--text-3xl);
+      margin-bottom: var(--space-2);
+    }
+    .welcome-header p {
+      color: var(--gray-500);
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 768px) {
+      .listing-row { flex-wrap: wrap; }
+      .listing-row__actions { width: 100%; justify-content: flex-end; }
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div class="container" style="padding-top:var(--space-8);padding-bottom:var(--space-16);">
+    <!-- Loading state -->
+    <div id="loading" class="empty-state">
+      <div class="spinner" style="margin:0 auto var(--space-4);"></div>
+      <p>Loading your dashboard...</p>
+    </div>
+
+    <!-- Dashboard content (hidden until loaded) -->
+    <div id="dashboard-content" style="display:none;">
+
+      <!-- Welcome -->
+      <div class="welcome-header">
+        <div class="flex items-center justify-between" style="flex-wrap:wrap;gap:var(--space-4);">
+          <div>
+            <h1 id="welcome-name">Welcome back</h1>
+            <p id="shop-info"></p>
+          </div>
+          <a href="/pages/create-listing.html" class="btn btn--primary btn--lg">+ New Listing</a>
+        </div>
+      </div>
+
+      <!-- Pending approval banner -->
+      <div id="pending-banner" class="pending-banner" style="display:none;">
+        <span class="pending-banner__icon">⏳</span>
+        <div>
+          <strong>Your seller account is pending approval.</strong>
+          You can start creating listings now — they'll go live once your account is approved.
+        </div>
+      </div>
+
+      <!-- Founding badge -->
+      <div id="founding-badge" style="display:none;margin-bottom:var(--space-6);">
+        <span class="badge badge--founding" style="font-size:var(--text-sm);padding:var(--space-2) var(--space-4);">
+          ✦ Founding 100 Seller — 8% Lifetime Rate
+        </span>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card stat-card--highlight">
+          <div class="stat-card__label">Total Earnings</div>
+          <div class="stat-card__value" id="stat-earnings">$0.00</div>
+          <div class="stat-card__sub">After fees</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Active Listings</div>
+          <div class="stat-card__value" id="stat-active">0</div>
+          <div class="stat-card__sub">Currently for sale</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Total Sales</div>
+          <div class="stat-card__value" id="stat-sales">0</div>
+          <div class="stat-card__sub">Completed orders</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Pending Orders</div>
+          <div class="stat-card__value" id="stat-pending">0</div>
+          <div class="stat-card__sub">Awaiting action</div>
+        </div>
+      </div>
+
+      <!-- My Listings -->
+      <div class="dashboard-section">
+        <div class="dashboard-section__header">
+          <h3 class="dashboard-section__title">My Listings</h3>
+          <a href="/pages/create-listing.html" class="btn btn--outline btn--sm">+ Add New</a>
+        </div>
+        <div id="listings-container">
+          <!-- Populated by JS -->
+        </div>
+        <div id="no-listings" class="empty-state" style="display:none;">
+          <div class="empty-state__icon">📦</div>
+          <div class="empty-state__title">No listings yet</div>
+          <div class="empty-state__text">Create your first listing and start selling.</div>
+          <a href="/pages/create-listing.html" class="btn btn--primary">Create Your First Listing</a>
+        </div>
+      </div>
+
+      <!-- Recent Orders -->
+      <div class="dashboard-section">
+        <div class="dashboard-section__header">
+          <h3 class="dashboard-section__title">Recent Orders</h3>
+          <a href="/pages/orders.html" class="btn btn--outline btn--sm">View All</a>
+        </div>
+        <div id="orders-container">
+          <!-- Populated by JS -->
+        </div>
+        <div id="no-orders" class="empty-state" style="display:none;padding:var(--space-8);">
+          <div class="empty-state__icon">🛒</div>
+          <div class="empty-state__title">No orders yet</div>
+          <div class="empty-state__text">When someone buys your items, orders will appear here.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container text-center" style="padding:var(--space-6) 0;">
+      <p style="font-size:var(--text-sm);margin:0;">&copy; 2026 Praktikal 03, LLC — Astoria, Oregon</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/navbar.js"></script>
+
+  <script>
+    (async () => {
+      // Require seller or admin role
+      const profile = await getCurrentProfile();
+      if (!profile || (profile.role !== 'seller' && profile.role !== 'admin')) {
+        window.location.href = '/pages/login.html';
+        return;
+      }
+
+      // Hide loading, show dashboard
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('dashboard-content').style.display = 'block';
+
+      // Welcome message
+      document.getElementById('welcome-name').textContent =
+        `Welcome back, ${profile.name || 'Seller'}`;
+      document.getElementById('shop-info').textContent =
+        profile.shop_name ? `${profile.shop_name} • ${getCategoryLabel(profile.category) || 'General'}` : '';
+
+      // Pending approval banner
+      if (!profile.approved) {
+        document.getElementById('pending-banner').style.display = 'flex';
+      }
+
+      // Founding badge
+      if (profile.is_founding) {
+        document.getElementById('founding-badge').style.display = 'block';
+      }
+
+      // Fetch seller's listings
+      const { data: listings, error: listingsErr } = await getSellerListings(profile.id);
+
+      if (listings && listings.length > 0) {
+        const container = document.getElementById('listings-container');
+        const activeListing = listings.filter(l => l.status === 'active');
+        const soldListings = listings.filter(l => l.status === 'sold');
+
+        // Update stats
+        document.getElementById('stat-active').textContent = activeListing.length;
+
+        // Render listings
+        container.innerHTML = listings.map(listing => `
+          <div class="listing-row">
+            ${listing.images && listing.images.length > 0
+              ? `<img src="${listing.images[0]}" alt="${listing.title}" class="listing-row__image">`
+              : `<div class="listing-row__image listing-row__image--placeholder">📷</div>`
+            }
+            <div class="listing-row__info">
+              <div class="listing-row__title">${listing.title}</div>
+              <div class="listing-row__meta">
+                <span class="badge badge--${listing.status}">${getStatusLabel(listing.status)}</span>
+                &nbsp;•&nbsp; ${getCategoryLabel(listing.category)}
+                &nbsp;•&nbsp; Listed ${formatDate(listing.created_at)}
+              </div>
+            </div>
+            <div class="listing-row__price">${formatPrice(listing.price)}</div>
+            <div class="listing-row__actions">
+              <a href="/pages/edit-listing.html?id=${listing.id}" class="btn btn--outline btn--sm">Edit</a>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        document.getElementById('no-listings').style.display = 'block';
+      }
+
+      // Fetch seller's orders
+      const { data: orders, error: ordersErr } = await getOrdersForUser(profile.id, 'seller');
+
+      if (orders && orders.length > 0) {
+        const completed = orders.filter(o => o.status === 'completed');
+        const pending = orders.filter(o => ['paid', 'shipped', 'delivered'].includes(o.status));
+
+        // Update stats
+        document.getElementById('stat-sales').textContent = completed.length;
+        document.getElementById('stat-pending').textContent = pending.length;
+
+        const totalEarnings = completed.reduce((sum, o) => sum + parseFloat(o.seller_payout || 0), 0);
+        document.getElementById('stat-earnings').textContent = formatPrice(totalEarnings);
+
+        // Render recent orders (last 5)
+        const recent = orders.slice(0, 5);
+        document.getElementById('orders-container').innerHTML = recent.map(order => `
+          <div class="listing-row">
+            <div class="listing-row__info">
+              <div class="listing-row__title">Order #${order.id.slice(0, 8)}</div>
+              <div class="listing-row__meta">
+                <span class="badge badge--${order.status}">${getStatusLabel(order.status)}</span>
+                &nbsp;•&nbsp; ${formatDate(order.created_at)}
+              </div>
+            </div>
+            <div class="listing-row__price">${formatPrice(order.seller_payout)}</div>
+          </div>
+        `).join('');
+      } else {
+        document.getElementById('no-orders').style.display = 'block';
+      }
+    })();
+  </script>
+</body>
+</html>

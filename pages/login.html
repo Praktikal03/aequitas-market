@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In — Aequitas Market</title>
+  <link rel="stylesheet" href="../css/design-system.css">
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card">
+      <!-- Logo -->
+      <div class="auth-card__logo">
+        <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+          <div class="navbar__logo-mark"></div>
+          <div style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:700;color:var(--navy);">
+            AEQUITAS <span style="color:var(--amber);">MARKET</span>
+          </div>
+        </a>
+      </div>
+
+      <h2 class="auth-card__title">Welcome Back</h2>
+      <p class="auth-card__subtitle">Sign in to your account to continue</p>
+
+      <!-- Alert container -->
+      <div id="alert-container"></div>
+
+      <!-- Login Form -->
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="email" class="form-label form-label--required">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="form-input"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label form-label--required">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-input"
+            placeholder="Your password"
+            required
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit" id="login-btn" class="btn btn--primary btn--full btn--lg">
+          Sign In
+        </button>
+      </form>
+
+      <div class="auth-card__footer">
+        <p>Don't have an account? <a href="/pages/signup.html">Create one</a></p>
+        <p style="margin-top:var(--space-2);">
+          <a href="/pages/signup.html?role=seller" style="color:var(--amber);font-weight:600;">
+            Start selling on Aequitas →
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-client.js"></script>
+
+  <script>
+    // Redirect if already logged in
+    (async () => {
+      const user = await getCurrentUser();
+      if (user) {
+        const profile = await getCurrentProfile();
+        if (profile?.role === 'seller') {
+          window.location.href = '/pages/seller-dashboard.html';
+        } else if (profile?.role === 'admin') {
+          window.location.href = '/pages/admin.html';
+        } else {
+          window.location.href = '/pages/browse.html';
+        }
+      }
+    })();
+
+    // Handle login
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        showAlert(document.getElementById('alert-container'), 'error', 'Please fill in all fields.');
+        return;
+      }
+
+      showLoading(btn, 'Signing in...');
+
+      const { data, error } = await signIn(email, password);
+
+      if (error) {
+        hideLoading(btn);
+        showAlert(document.getElementById('alert-container'), 'error', error.message);
+        return;
+      }
+
+      // Redirect based on role
+      const profile = await getCurrentProfile();
+      if (profile?.role === 'admin') {
+        window.location.href = '/pages/admin.html';
+      } else if (profile?.role === 'seller') {
+        window.location.href = '/pages/seller-dashboard.html';
+      } else {
+        window.location.href = '/pages/browse.html';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Listing — Aequitas Market</title>
+  <link rel="stylesheet" href="../css/design-system.css">
+  <style>
+    .edit-page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: var(--space-8) var(--space-6) var(--space-16);
+    }
+    .edit-page h1 { margin-bottom: var(--space-2); }
+    .edit-page__subtitle { color: var(--gray-500); margin-bottom: var(--space-8); }
+
+    .form-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-8);
+      margin-bottom: var(--space-6);
+    }
+    .form-card__title {
+      font-size: var(--text-lg);
+      margin-bottom: var(--space-5);
+      padding-bottom: var(--space-3);
+      border-bottom: var(--border-light);
+    }
+
+    .existing-images {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+    .existing-image {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .existing-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .existing-image__remove {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 24px;
+      height: 24px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .existing-image__remove:hover { background: var(--error); }
+
+    .price-input-wrapper {
+      position: relative;
+    }
+    .price-input-wrapper::before {
+      content: '$';
+      position: absolute;
+      left: var(--space-4);
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-500);
+      font-weight: 600;
+      font-size: var(--text-lg);
+    }
+    .price-input-wrapper .form-input {
+      padding-left: var(--space-8);
+      font-size: var(--text-lg);
+      font-weight: 600;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-5);
+    }
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--gray-50);
+      padding: var(--space-3) var(--space-5);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-6);
+      font-size: var(--text-sm);
+    }
+
+    .danger-zone {
+      background: var(--error-light);
+      border: 1px solid #fecaca;
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin-top: var(--space-8);
+    }
+    .danger-zone h4 { color: #991b1b; margin-bottom: var(--space-3); }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div class="edit-page">
+    <div id="loading" class="empty-state">
+      <div class="spinner" style="margin:0 auto var(--space-4);"></div>
+      <p>Loading listing...</p>
+    </div>
+
+    <div id="edit-content" style="display:none;">
+      <h1>Edit Listing</h1>
+      <p class="edit-page__subtitle">Update your listing details below.</p>
+
+      <div class="status-bar">
+        <span>Status: <strong><span id="current-status"></span></strong></span>
+        <span>Listed: <span id="listed-date"></span></span>
+      </div>
+
+      <div id="alert-container"></div>
+
+      <form id="edit-form" novalidate>
+        <!-- Existing Images -->
+        <div class="form-card">
+          <h3 class="form-card__title">Photos</h3>
+          <div class="existing-images" id="existing-images"></div>
+          <p class="form-hint" id="image-hint">Click × to remove a photo.</p>
+        </div>
+
+        <!-- Details -->
+        <div class="form-card">
+          <h3 class="form-card__title">Details</h3>
+          <div class="form-group">
+            <label for="title" class="form-label form-label--required">Title</label>
+            <input type="text" id="title" class="form-input" maxlength="120" required>
+          </div>
+
+          <div class="form-group">
+            <label for="description" class="form-label form-label--required">Description</label>
+            <textarea id="description" class="form-textarea" rows="5" required></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="category" class="form-label form-label--required">Category</label>
+              <select id="category" class="form-select" required>
+                <option value="clothing">Clothing & Fashion</option>
+                <option value="electronics">Electronics & Tech</option>
+                <option value="vintage">Vintage & Antiques</option>
+                <option value="art">Art & Handmade</option>
+                <option value="collectibles">Collectibles</option>
+                <option value="general">General / Everything</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="condition" class="form-label form-label--required">Condition</label>
+              <select id="condition" class="form-select" required>
+                <option value="new">New</option>
+                <option value="like_new">Like New</option>
+                <option value="good">Good</option>
+                <option value="fair">Fair</option>
+                <option value="poor">Poor</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="form-card">
+          <h3 class="form-card__title">Pricing</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="price" class="form-label form-label--required">Price</label>
+              <div class="price-input-wrapper">
+                <input type="number" id="price" class="form-input" min="1" step="0.01" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="shipping" class="form-label">Shipping Cost</label>
+              <div class="price-input-wrapper">
+                <input type="number" id="shipping" class="form-input" min="0" step="0.01">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-4" style="justify-content:flex-end;">
+          <a href="/pages/seller-dashboard.html" class="btn btn--outline btn--lg">Cancel</a>
+          <button type="submit" id="save-btn" class="btn btn--primary btn--lg">Save Changes</button>
+        </div>
+      </form>
+
+      <!-- Danger Zone -->
+      <div class="danger-zone">
+        <h4>Remove Listing</h4>
+        <p style="font-size:var(--text-sm);color:#991b1b;margin-bottom:var(--space-3);">
+          This will remove your listing from the marketplace. This action cannot be undone.
+        </p>
+        <button class="btn btn--sm" style="background:var(--error);color:white;" onclick="removeListing()">
+          Remove Listing
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/navbar.js"></script>
+
+  <script>
+    let listingId = null;
+    let currentImages = [];
+
+    (async () => {
+      const profile = await getCurrentProfile();
+      if (!profile || (profile.role !== 'seller' && profile.role !== 'admin')) {
+        window.location.href = '/pages/login.html';
+        return;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      listingId = params.get('id');
+      if (!listingId) {
+        window.location.href = '/pages/seller-dashboard.html';
+        return;
+      }
+
+      const { data: listing, error } = await getListing(listingId);
+      document.getElementById('loading').style.display = 'none';
+
+      if (error || !listing) {
+        showAlert(document.getElementById('alert-container'), 'error', 'Listing not found.');
+        return;
+      }
+
+      // Verify ownership (unless admin)
+      if (profile.role !== 'admin' && listing.seller_id !== profile.id) {
+        window.location.href = '/pages/seller-dashboard.html';
+        return;
+      }
+
+      document.getElementById('edit-content').style.display = 'block';
+
+      // Populate form
+      document.getElementById('title').value = listing.title;
+      document.getElementById('description').value = listing.description;
+      document.getElementById('category').value = listing.category;
+      document.getElementById('condition').value = listing.condition || '';
+      document.getElementById('price').value = listing.price;
+      document.getElementById('shipping').value = listing.shipping_cost || 0;
+      document.getElementById('current-status').textContent = getStatusLabel(listing.status);
+      document.getElementById('listed-date').textContent = formatDate(listing.created_at);
+
+      // Existing images
+      currentImages = listing.images || [];
+      renderExistingImages();
+    })();
+
+    function renderExistingImages() {
+      const container = document.getElementById('existing-images');
+      if (currentImages.length === 0) {
+        container.innerHTML = '<p class="text-muted text-sm">No photos uploaded.</p>';
+        return;
+      }
+      container.innerHTML = currentImages.map((url, i) => `
+        <div class="existing-image">
+          <img src="${url}" alt="Photo ${i + 1}">
+          <button type="button" class="existing-image__remove" onclick="removeImage(${i})">&times;</button>
+        </div>
+      `).join('');
+    }
+
+    function removeImage(index) {
+      currentImages.splice(index, 1);
+      renderExistingImages();
+    }
+
+    // Save changes
+    document.getElementById('edit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('save-btn');
+      const alertContainer = document.getElementById('alert-container');
+
+      const updates = {
+        title: document.getElementById('title').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        category: document.getElementById('category').value,
+        condition: document.getElementById('condition').value,
+        price: parseFloat(document.getElementById('price').value),
+        shipping_cost: parseFloat(document.getElementById('shipping').value) || 0,
+        images: currentImages
+      };
+
+      if (!updates.title || !updates.description || !updates.price) {
+        showAlert(alertContainer, 'error', 'Please fill in all required fields.');
+        return;
+      }
+
+      // Content filter — block off-platform contact info
+      const titleCheck = checkContentFilter(updates.title);
+      const descCheck = checkContentFilter(updates.description);
+      if (!titleCheck.clean || !descCheck.clean) {
+        const allViolations = [...new Set([...titleCheck.violations, ...descCheck.violations])];
+        showAlert(alertContainer, 'error', getContentFilterMessage(allViolations));
+        return;
+      }
+
+      showLoading(btn, 'Saving...');
+      const { data, error } = await updateListing(listingId, updates);
+      hideLoading(btn);
+
+      if (error) {
+        showAlert(alertContainer, 'error', `Error: ${error.message}`);
+      } else {
+        showAlert(alertContainer, 'success', 'Listing updated successfully!');
+      }
+    });
+
+    async function removeListing() {
+      if (!confirm('Are you sure you want to remove this listing? This cannot be undone.')) return;
+
+      const { data, error } = await updateListing(listingId, { status: 'removed' });
+      if (error) {
+        showAlert(document.getElementById('alert-container'), 'error', `Error: ${error.message}`);
+      } else {
+        window.location.href = '/pages/seller-dashboard.html';
+      }
+    }
+  </script>
+</body>
+</html>
