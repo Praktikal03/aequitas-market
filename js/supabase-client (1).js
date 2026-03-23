@@ -381,7 +381,7 @@ function checkContentFilter(text) {
 // Format violations into a user-friendly message
 function getContentFilterMessage(violations) {
   const items = violations.map(v => v).join(', ');
-  return `Your listing contains ${items}. To protect buyers and sellers, contact information and off-platform references are not allowed in listings. All transactions must go through Aequitas Market's secure escrow system.`;
+  return `Your listing contains ${items}. To protect buyers and sellers, contact information and off-platform references are not allowed in listings. All transactions must go through Aequitas Market's secure checkout.`;
 }
 
 /* ============================================================
