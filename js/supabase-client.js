@@ -191,82 +191,14 @@ async function updateListing(id, updates) {
    IMAGE UPLOAD HELPERS
    ============================================================ */
 
-// Strip all EXIF/metadata from an image by redrawing through canvas
-// Removes: GPS coordinates, camera info, timestamps, software tags, etc.
-async function stripImageMetadata(file, maxDimension = 2048, quality = 0.92) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-
-      // Calculate dimensions (scale down if larger than maxDimension)
-      let width = img.width;
-      let height = img.height;
-
-      if (width > maxDimension || height > maxDimension) {
-        if (width > height) {
-          height = Math.round((height * maxDimension) / width);
-          width = maxDimension;
-        } else {
-          width = Math.round((width * maxDimension) / height);
-          height = maxDimension;
-        }
-      }
-
-      // Draw to canvas — this strips ALL metadata
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-
-      // Convert back to blob
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            reject(new Error('Failed to process image'));
-            return;
-          }
-          // Create a new File from the clean blob
-          const cleanFile = new File([blob], file.name, {
-            type: 'image/jpeg',
-            lastModified: Date.now()
-          });
-          resolve(cleanFile);
-        },
-        'image/jpeg',
-        quality
-      );
-    };
-
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Failed to load image for processing'));
-    };
-
-    img.src = url;
-  });
-}
-
 async function uploadListingImage(file, listingId) {
-  // Strip all metadata before uploading
-  let cleanFile;
-  try {
-    cleanFile = await stripImageMetadata(file);
-  } catch (err) {
-    console.error('Metadata strip failed, uploading original:', err);
-    cleanFile = file; // Fallback to original if stripping fails
-  }
-
-  const fileName = `${listingId}/${Date.now()}.jpg`;
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${listingId}/${Date.now()}.${fileExt}`;
 
   const { data, error } = await supabaseClient.storage
     .from('listing-images')
-    .upload(fileName, cleanFile, {
+    .upload(fileName, file, {
       cacheControl: '3600',
-      contentType: 'image/jpeg',
       upsert: false
     });
 
@@ -308,80 +240,26 @@ function calculateFees(price, shippingCost, feeRate = 10) {
   const shipping = parseFloat(shippingCost) || 0;
   const total = subtotal + shipping;
   
-  // Stripe fee: 2.9% + $0.30
-  const stripeFee = Math.round((total * 0.029 + 0.30) * 100) / 100;
-  
-  // Platform fee: feeRate% of subtotal (not shipping)
+  // Platform fee: feeRate% of subtotal (not shipping) — all-inclusive, no hidden fees
   const platformFee = Math.round((subtotal * feeRate / 100) * 100) / 100;
   
-  // Seller payout
-  const sellerPayout = Math.round((total - stripeFee - platformFee) * 100) / 100;
+  // Seller payout: total minus platform fee only — Stripe processing is absorbed by platform
+  const sellerPayout = Math.round((total - platformFee) * 100) / 100;
+
+  // Internal: Stripe fee (2.9% + $0.30) — NOT shown to sellers, comes out of platform cut
+  const stripeFee = Math.round((total * 0.029 + 0.30) * 100) / 100;
+  const platformNetRevenue = Math.round((platformFee - stripeFee) * 100) / 100;
 
   return {
     subtotal,
     shipping,
     total,
-    stripeFee,
+    stripeFee,          // internal use only — do not display to sellers
     platformFee,
+    platformNetRevenue, // what platform actually keeps after Stripe
     sellerPayout,
     feeRate
   };
-}
-
-/* ============================================================
-   CONTENT FILTER — Off-Platform Transaction Prevention
-   Scans text for contact info, social handles, URLs, phone
-   numbers, and solicitation phrases. Returns violations found.
-   ============================================================ */
-
-function checkContentFilter(text) {
-  if (!text) return { clean: true, violations: [] };
-
-  const violations = [];
-  const lower = text.toLowerCase();
-
-  // Email addresses
-  if (/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(text)) {
-    violations.push('email address');
-  }
-
-  // Phone numbers (various US formats)
-  if (/(\+?1?[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/.test(text)) {
-    violations.push('phone number');
-  }
-
-  // Social media handles (@username)
-  if (/@[a-zA-Z0-9_.]{2,}/.test(text)) {
-    violations.push('social media handle');
-  }
-
-  // URLs and domains
-  if (/https?:\/\/|www\.|\.com|\.net|\.org|\.io|\.shop|\.co\/|\.me\/|linktr\.ee|bit\.ly/i.test(text)) {
-    violations.push('website or link');
-  }
-
-  // Platform names used for off-platform contact
-  const platforms = /\b(venmo|cashapp|cash\s*app|zelle|paypal|whatsapp|telegram|signal|facebook|fb|messenger|snapchat|snap|tiktok|twitter|discord)\b/i;
-  if (platforms.test(text)) {
-    violations.push('external platform reference');
-  }
-
-  // Solicitation phrases
-  const solicitation = /\b(dm\s*me|text\s*me|call\s*me|hit\s*me\s*up|message\s*me|contact\s*me\s*(at|on|via)|reach\s*(me|out)\s*(at|on|via)|find\s*me\s*(at|on)|follow\s*me|hmu|send\s*me\s*a\s*(dm|message|text)|off\s*platform|pay\s*me\s*(directly|outside)|direct\s*payment)\b/i;
-  if (solicitation.test(text)) {
-    violations.push('off-platform solicitation');
-  }
-
-  return {
-    clean: violations.length === 0,
-    violations
-  };
-}
-
-// Format violations into a user-friendly message
-function getContentFilterMessage(violations) {
-  const items = violations.map(v => v).join(', ');
-  return `Your listing contains ${items}. To protect buyers and sellers, contact information and off-platform references are not allowed in listings. All transactions must go through Aequitas Market's secure checkout.`;
 }
 
 /* ============================================================

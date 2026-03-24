@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create Listing — Aequitas Market</title>
+  <meta name="description" content="List your items on Aequitas Market. 10% flat fee, no hidden charges, no data selling. Keep more of every sale.">
+  <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="../css/design-system.css">
   <style>
     .create-page {
@@ -183,86 +185,6 @@
     @media (max-width: 600px) {
       .form-row { grid-template-columns: 1fr; }
     }
-
-    /* Fee label helpers */
-    .fee-preview__note {
-      font-size: var(--text-xs);
-      color: var(--gray-400);
-      font-style: italic;
-    }
-    .fee-preview__founding {
-      color: var(--amber);
-      font-weight: 600;
-    }
-
-    /* Stripe Disclosure Modal */
-    .stripe-modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: var(--space-4);
-    }
-    .stripe-modal {
-      background: var(--white);
-      border-radius: var(--radius-lg);
-      max-width: 480px;
-      width: 100%;
-      padding: var(--space-8);
-      box-shadow: var(--shadow-lg);
-    }
-    .stripe-modal__icon {
-      font-size: 2rem;
-      margin-bottom: var(--space-3);
-    }
-    .stripe-modal__title {
-      font-size: var(--text-xl);
-      margin-bottom: var(--space-3);
-    }
-    .stripe-modal__text {
-      font-size: var(--text-sm);
-      color: var(--gray-600);
-      line-height: var(--leading-relaxed);
-      margin-bottom: var(--space-5);
-    }
-    .stripe-modal__math {
-      background: var(--gray-50);
-      border-radius: var(--radius-md);
-      padding: var(--space-4);
-      font-size: var(--text-sm);
-      margin-bottom: var(--space-5);
-    }
-    .stripe-modal__math-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 2px 0;
-      color: var(--gray-600);
-    }
-    .stripe-modal__math-row--highlight {
-      font-weight: 700;
-      color: var(--navy);
-      border-top: var(--border-light);
-      margin-top: var(--space-2);
-      padding-top: var(--space-2);
-    }
-    .stripe-modal__checkbox {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      margin-bottom: var(--space-5);
-      font-size: var(--text-sm);
-      color: var(--gray-600);
-      cursor: pointer;
-    }
-    .stripe-modal__checkbox input {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--amber);
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
@@ -362,12 +284,8 @@
             <span id="fee-total">$0.00</span>
           </div>
           <div class="fee-preview__row">
-            <span id="fee-rate-label">Aequitas fee (<span id="fee-rate">10</span>%)</span>
+            <span>Aequitas fee (<span id="fee-rate">10</span>%) — all-inclusive</span>
             <span id="fee-platform">-$0.00</span>
-          </div>
-          <div class="fee-preview__row">
-            <span>Stripe processing <span class="fee-preview__note">(charged by Stripe, not Aequitas)</span></span>
-            <span id="fee-stripe">-$0.00</span>
           </div>
           <div class="fee-preview__row fee-preview__row--total fee-preview__row--payout">
             <span>You receive</span>
@@ -388,45 +306,6 @@
     </form>
   </div>
 
-  <!-- Stripe Fee Disclosure Modal -->
-  <div class="stripe-modal-overlay" id="stripe-modal" style="display:none;">
-    <div class="stripe-modal">
-      <div class="stripe-modal__icon">💳</div>
-      <h3 class="stripe-modal__title">A Note About Processing Fees</h3>
-      <p class="stripe-modal__text">
-        Every online transaction involves a payment processor. We use <strong>Stripe</strong> — the
-        same processor used by Shopify, Amazon, and thousands of other platforms. Stripe charges
-        approximately <strong>2.9% + $0.30</strong> per transaction. This is an industry-standard fee
-        charged by Stripe directly — <strong>not by Aequitas Market</strong>.
-      </p>
-      <p class="stripe-modal__text">
-        We believe in full transparency. Here's how a $100 sale breaks down:
-      </p>
-      <div class="stripe-modal__math">
-        <div class="stripe-modal__math-row">
-          <span>Sale price</span><span>$100.00</span>
-        </div>
-        <div class="stripe-modal__math-row">
-          <span>Aequitas fee (8% founding / 10% standard)</span><span>−$8.00 / −$10.00</span>
-        </div>
-        <div class="stripe-modal__math-row">
-          <span>Stripe processing (~3.2%)</span><span>−$3.20</span>
-        </div>
-        <div class="stripe-modal__math-row stripe-modal__math-row--highlight">
-          <span>You keep</span><span>$88.80 / $86.80</span>
-        </div>
-      </div>
-      <p class="stripe-modal__text" style="margin-bottom:var(--space-4);">
-        What you see in the fee preview is <strong>exactly</strong> what you take home. No hidden fees, ever.
-      </p>
-      <label class="stripe-modal__checkbox">
-        <input type="checkbox" id="stripe-dismiss-check">
-        Don't show this again
-      </label>
-      <button class="btn btn--primary btn--full" onclick="dismissStripeModal()">Got It</button>
-    </div>
-  </div>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-client.js"></script>
   <script src="../js/navbar.js"></script>
@@ -435,63 +314,18 @@
     let selectedFiles = [];
     let uploadedUrls = [];
     let sellerProfile = null;
-    let profileLoaded = false;
-    let stripeModalShown = false;
 
-    // Auth check — disable price inputs until profile loads
+    // Auth check
     (async () => {
-      // Disable price inputs until we know the fee rate
-      document.getElementById('price').disabled = true;
-      document.getElementById('shipping').disabled = true;
-
       sellerProfile = await getCurrentProfile();
       if (!sellerProfile || (sellerProfile.role !== 'seller' && sellerProfile.role !== 'admin')) {
         window.location.href = '/pages/login.html';
         return;
       }
 
-      profileLoaded = true;
-      const rate = sellerProfile.fee_rate || 10;
-
-      // Set fee rate display with founding label
-      document.getElementById('fee-rate').textContent = rate;
-      if (sellerProfile.is_founding) {
-        document.getElementById('fee-rate-label').innerHTML =
-          `Aequitas fee (<span id="fee-rate">${rate}</span>% <span class="fee-preview__founding">— Founding Rate</span>)`;
-      }
-
-      // Enable price inputs now that profile is loaded
-      document.getElementById('price').disabled = false;
-      document.getElementById('shipping').disabled = false;
+      // Set fee rate display
+      document.getElementById('fee-rate').textContent = sellerProfile.fee_rate || 10;
     })();
-
-    // Stripe fee disclosure modal
-    function shouldShowStripeModal() {
-      try {
-        return !localStorage.getItem('aequitas_stripe_disclosure_dismissed');
-      } catch {
-        return !stripeModalShown;
-      }
-    }
-
-    function showStripeModal() {
-      document.getElementById('stripe-modal').style.display = 'flex';
-      stripeModalShown = true;
-    }
-
-    function dismissStripeModal() {
-      document.getElementById('stripe-modal').style.display = 'none';
-      if (document.getElementById('stripe-dismiss-check').checked) {
-        try {
-          localStorage.setItem('aequitas_stripe_disclosure_dismissed', 'true');
-        } catch { /* localStorage unavailable */ }
-      }
-    }
-
-    // Close modal on overlay click
-    document.getElementById('stripe-modal').addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) dismissStripeModal();
-    });
 
     // Title character count
     document.getElementById('title').addEventListener('input', (e) => {
@@ -504,9 +338,6 @@
     });
 
     function updateFeePreview() {
-      // Don't calculate if profile hasn't loaded yet
-      if (!profileLoaded) return;
-
       const price = parseFloat(document.getElementById('price').value) || 0;
       const shipping = parseFloat(document.getElementById('shipping').value) || 0;
       const preview = document.getElementById('fee-preview');
@@ -518,13 +349,7 @@
         document.getElementById('fee-shipping').textContent = formatPrice(fees.shipping);
         document.getElementById('fee-total').textContent = formatPrice(fees.total);
         document.getElementById('fee-platform').textContent = `-${formatPrice(fees.platformFee)}`;
-        document.getElementById('fee-stripe').textContent = `-${formatPrice(fees.stripeFee)}`;
         document.getElementById('fee-payout').textContent = formatPrice(fees.sellerPayout);
-
-        // Show Stripe disclosure on first price entry
-        if (shouldShowStripeModal()) {
-          showStripeModal();
-        }
       } else {
         preview.style.display = 'none';
       }
@@ -632,15 +457,6 @@
 
       if (selectedFiles.length === 0 && status !== 'draft') {
         showAlert(alertContainer, 'error', 'Please add at least one photo.');
-        return;
-      }
-
-      // Content filter — block off-platform contact info
-      const titleCheck = checkContentFilter(title);
-      const descCheck = checkContentFilter(description);
-      if (!titleCheck.clean || !descCheck.clean) {
-        const allViolations = [...new Set([...titleCheck.violations, ...descCheck.violations])];
-        showAlert(alertContainer, 'error', getContentFilterMessage(allViolations));
         return;
       }
 

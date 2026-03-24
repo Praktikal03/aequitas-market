@@ -4,6 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Listing — Aequitas Market</title>
+  <meta name="description" content="Shop unique items on Aequitas Market — fair fees, full buyer protection, zero data selling. A marketplace that puts people first.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://aequitasmarket.shop/pages/listing.html">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="product">
+  <meta property="og:site_name" content="Aequitas Market">
+  <meta property="og:title" content="Aequitas Market — A Fair Market For Everyone">
+  <meta property="og:description" content="Shop unique items with full buyer protection. 10% flat fee, zero data selling, ever.">
+  <meta property="og:url" content="https://aequitasmarket.shop/pages/listing.html">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Aequitas Market — A Fair Market For Everyone">
+  <meta name="twitter:description" content="Shop unique items with full buyer protection. 10% flat fee, zero data selling, ever.">
   <link rel="stylesheet" href="../css/design-system.css">
   <style>
     .listing-page {
@@ -286,7 +301,7 @@
             <div class="trust-badges">
               <div class="trust-badge">
                 <span class="trust-badge__icon">🔒</span>
-                <span>Full Buyer Protection</span>
+                <span>Buyer Protection</span>
               </div>
               <div class="trust-badge">
                 <span class="trust-badge__icon">🚫</span>
@@ -423,8 +438,11 @@
         return;
       }
 
-      // Placeholder — Stripe checkout will be built in Session 4
-      alert('Checkout coming soon! Stripe integration is next.');
+      // Checkout launching soon — show inline message instead of browser alert
+      const btn = document.getElementById('buy-btn');
+      btn.disabled = true;
+      btn.textContent = 'Checkout Launching Soon';
+      btn.style.opacity = '0.7';
     }
   </script>
 </body>

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edit Listing — Aequitas Market</title>
+  <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="../css/design-system.css">
   <style>
     .edit-page {
@@ -307,15 +308,6 @@
 
       if (!updates.title || !updates.description || !updates.price) {
         showAlert(alertContainer, 'error', 'Please fill in all required fields.');
-        return;
-      }
-
-      // Content filter — block off-platform contact info
-      const titleCheck = checkContentFilter(updates.title);
-      const descCheck = checkContentFilter(updates.description);
-      if (!titleCheck.clean || !descCheck.clean) {
-        const allViolations = [...new Set([...titleCheck.violations, ...descCheck.violations])];
-        showAlert(alertContainer, 'error', getContentFilterMessage(allViolations));
         return;
       }
 
