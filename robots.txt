@@ -1,0 +1,39 @@
+# Aequitas Market — robots.txt
+# Allow search engines, block AI scrapers
+
+User-agent: *
+Allow: /
+Disallow: /pages/seller-dashboard.html
+Disallow: /pages/create-listing.html
+Disallow: /pages/edit-listing.html
+Disallow: /pages/profile.html
+Disallow: /pages/orders.html
+Disallow: /pages/admin.html
+Disallow: /pages/become-seller.html
+
+# Block AI training crawlers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+Sitemap: https://aequitasmarket.shop/sitemap.xml
