@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders — Aequitas Market</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="../css/design-system.css">
+  <style>
+    .orders-page {
+      padding: var(--space-8) 0 var(--space-16);
+    }
+    .orders-page h1 {
+      font-size: var(--text-3xl);
+      margin-bottom: var(--space-2);
+    }
+    .orders-page__subtitle {
+      color: var(--gray-500);
+      margin-bottom: var(--space-8);
+    }
+
+    .order-tabs {
+      display: flex;
+      gap: var(--space-1);
+      margin-bottom: var(--space-6);
+      border-bottom: 2px solid var(--gray-200);
+    }
+    .order-tab {
+      padding: var(--space-3) var(--space-5);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--gray-500);
+      background: none;
+      border: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all var(--transition-fast);
+    }
+    .order-tab:hover { color: var(--navy); }
+    .order-tab--active {
+      color: var(--navy);
+      border-bottom-color: var(--amber);
+    }
+
+    .tab-content { display: none; }
+    .tab-content--active { display: block; }
+
+    /* Order Card */
+    .order-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-4);
+      overflow: hidden;
+      transition: box-shadow var(--transition-fast);
+    }
+    .order-card:hover { box-shadow: var(--shadow-md); }
+
+    .order-card__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-5);
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-100);
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .order-card__id {
+      font-weight: 600;
+      font-size: var(--text-sm);
+      color: var(--navy);
+    }
+    .order-card__date {
+      font-size: var(--text-xs);
+      color: var(--gray-400);
+    }
+
+    .order-card__body {
+      padding: var(--space-5);
+    }
+
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-3) 0;
+    }
+    .order-item + .order-item {
+      border-top: 1px solid var(--gray-100);
+    }
+    .order-item__image {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      background: var(--gray-100);
+      flex-shrink: 0;
+    }
+    .order-item__image--placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--gray-300);
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-sm);
+      background: var(--gray-100);
+      flex-shrink: 0;
+    }
+    .order-item__info { flex: 1; min-width: 0; }
+    .order-item__title {
+      font-weight: 600;
+      font-size: var(--text-sm);
+      color: var(--gray-800);
+    }
+    .order-item__price {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--text-lg);
+      color: var(--navy);
+      flex-shrink: 0;
+    }
+
+    .order-card__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-5);
+      border-top: var(--border-light);
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+    .order-card__total {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .order-card__tracking {
+      font-size: var(--text-xs);
+      color: var(--gray-500);
+    }
+
+    .order-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+    .btn--confirm {
+      background: var(--success);
+      color: var(--white);
+      border: none;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn--track {
+      background: none;
+      color: var(--gray-600);
+      border: 1px solid var(--gray-300);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+      .order-card__header { flex-direction: column; align-items: flex-start; }
+      .order-card__footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div class="orders-page">
+    <div class="container">
+      <!-- Loading -->
+      <div id="loading" class="empty-state">
+        <div class="spinner" style="margin:0 auto var(--space-4);"></div>
+        <p>Loading orders...</p>
+      </div>
+
+      <div id="orders-content" style="display:none;">
+        <h1>My Orders</h1>
+        <p class="orders-page__subtitle" id="orders-subtitle"></p>
+
+        <!-- Tabs for sellers (purchases + sales) -->
+        <div class="order-tabs" id="order-tabs" style="display:none;">
+          <button class="order-tab order-tab--active" onclick="switchOrderTab('purchases')">My Purchases</button>
+          <button class="order-tab" onclick="switchOrderTab('sales')">My Sales</button>
+        </div>
+
+        <!-- Purchases -->
+        <div class="tab-content tab-content--active" id="tab-purchases">
+          <div id="purchases-list"></div>
+          <div id="no-purchases" class="empty-state" style="display:none;">
+            <div class="empty-state__icon">🛍️</div>
+            <div class="empty-state__title">No purchases yet</div>
+            <div class="empty-state__text">When you buy items, your orders will appear here.</div>
+            <a href="/pages/browse.html" class="btn btn--primary">Browse the Market</a>
+          </div>
+        </div>
+
+        <!-- Sales (sellers only) -->
+        <div class="tab-content" id="tab-sales">
+          <div id="sales-list"></div>
+          <div id="no-sales" class="empty-state" style="display:none;">
+            <div class="empty-state__icon">📦</div>
+            <div class="empty-state__title">No sales yet</div>
+            <div class="empty-state__text">When someone buys your items, orders will appear here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="alert-container"></div>
+
+  <footer class="footer">
+    <div class="container text-center" style="padding:var(--space-6) 0;">
+      <p style="font-size:var(--text-sm);margin:0;">&copy; 2026 Praktikal 03, LLC — Astoria, Oregon</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/navbar.js"></script>
+
+  <script>
+    let currentProfile = null;
+
+    (async () => {
+      currentProfile = await getCurrentProfile();
+      if (!currentProfile) {
+        window.location.href = '/pages/login.html';
+        return;
+      }
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('orders-content').style.display = 'block';
+
+      const isSeller = currentProfile.role === 'seller' || currentProfile.role === 'admin';
+
+      if (isSeller) {
+        document.getElementById('order-tabs').style.display = 'flex';
+        document.getElementById('orders-subtitle').textContent = 'View your purchases and sales.';
+        loadOrders('purchases');
+        loadOrders('sales');
+      } else {
+        document.getElementById('orders-subtitle').textContent = 'View your purchase history.';
+        loadOrders('purchases');
+      }
+    })();
+
+    function switchOrderTab(tab) {
+      document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('order-tab--active'));
+      document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('tab-content--active'));
+      document.querySelector(`[onclick="switchOrderTab('${tab}')"]`).classList.add('order-tab--active');
+      document.getElementById(`tab-${tab}`).classList.add('tab-content--active');
+    }
+
+    async function loadOrders(type) {
+      const role = type === 'sales' ? 'seller' : 'buyer';
+      const { data, error } = await getOrdersForUser(currentProfile.id, role);
+
+      if (error) {
+        console.error(`Error loading ${type}:`, error);
+        return;
+      }
+
+      const listId = type === 'sales' ? 'sales-list' : 'purchases-list';
+      const emptyId = type === 'sales' ? 'no-sales' : 'no-purchases';
+
+      if (!data || data.length === 0) {
+        document.getElementById(emptyId).style.display = 'block';
+        return;
+      }
+
+      document.getElementById(listId).innerHTML = data.map(order => {
+        const items = order.order_items || [];
+        const isSale = type === 'sales';
+
+        return `
+          <div class="order-card">
+            <div class="order-card__header">
+              <div>
+                <span class="order-card__id">Order #${order.id.slice(0, 8)}</span>
+                <span class="order-card__date">&nbsp;•&nbsp; ${formatDate(order.created_at)}</span>
+              </div>
+              <span class="badge badge--${order.status}">${getStatusLabel(order.status)}</span>
+            </div>
+
+            <div class="order-card__body">
+              ${items.map(item => `
+                <div class="order-item">
+                  ${item.listing?.images?.length
+                    ? `<img src="${item.listing.images[0]}" alt="${item.listing?.title || 'Item'}" class="order-item__image">`
+                    : `<div class="order-item__image--placeholder">📷</div>`
+                  }
+                  <div class="order-item__info">
+                    <div class="order-item__title">${item.listing?.title || 'Item'}</div>
+                  </div>
+                  <div class="order-item__price">${formatPrice(item.price_at_purchase)}</div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="order-card__footer">
+              <div>
+                <div class="order-card__total">
+                  ${isSale ? `You receive: ${formatPrice(order.seller_payout)}` : `Total: ${formatPrice(order.subtotal)}`}
+                </div>
+                ${order.tracking_number ? `
+                  <div class="order-card__tracking">
+                    ${order.shipping_carrier || 'Tracking'}: ${order.tracking_number}
+                  </div>
+                ` : ''}
+              </div>
+              <div class="order-actions">
+                ${!isSale && order.status === 'shipped' ? `
+                  <button class="btn--confirm" onclick="confirmDelivery('${order.id}')">Confirm Delivery</button>
+                ` : ''}
+                ${isSale && order.status === 'paid' ? `
+                  <button class="btn--confirm" onclick="addTracking('${order.id}')">Add Tracking</button>
+                ` : ''}
+                ${order.tracking_number ? `
+                  <a class="btn--track" href="https://www.google.com/search?q=${order.shipping_carrier || ''}+tracking+${order.tracking_number}" target="_blank">Track Package</a>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function confirmDelivery(orderId) {
+      if (!confirm('Confirm you received this item? Funds will be released to the seller.')) return;
+
+      const { error } = await supabaseClient
+        .from('orders')
+        .update({
+          status: 'delivered',
+          delivered_at: new Date().toISOString()
+        })
+        .eq('id', orderId);
+
+      if (error) {
+        showAlert(document.getElementById('alert-container'), 'error', error.message);
+      } else {
+        showAlert(document.getElementById('alert-container'), 'success', 'Delivery confirmed! Thank you.');
+        loadOrders('purchases');
+      }
+    }
+
+    async function addTracking(orderId) {
+      const carrier = prompt('Shipping carrier (USPS, UPS, FedEx, etc.):');
+      if (!carrier) return;
+      const tracking = prompt('Tracking number:');
+      if (!tracking) return;
+
+      const { error } = await supabaseClient
+        .from('orders')
+        .update({
+          status: 'shipped',
+          shipped_at: new Date().toISOString(),
+          shipping_carrier: carrier,
+          tracking_number: tracking
+        })
+        .eq('id', orderId);
+
+      if (error) {
+        showAlert(document.getElementById('alert-container'), 'error', error.message);
+      } else {
+        showAlert(document.getElementById('alert-container'), 'success', 'Tracking added! Buyer will be notified.');
+        loadOrders('sales');
+      }
+    }
+  </script>
+</body>
+</html>
