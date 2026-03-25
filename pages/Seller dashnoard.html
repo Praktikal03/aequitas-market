@@ -189,6 +189,21 @@
         </span>
       </div>
 
+      <!-- Shop Link -->
+      <div id="shop-link-card" style="display:none;background:var(--white);border-radius:var(--radius-lg);padding:var(--space-5) var(--space-6);box-shadow:var(--shadow-sm);margin-bottom:var(--space-6);border-left:4px solid var(--amber);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);">
+          <div>
+            <div style="font-weight:600;font-size:var(--text-sm);color:var(--navy);margin-bottom:var(--space-1);">Your Shop Link</div>
+            <div style="font-size:var(--text-xs);color:var(--gray-500);">Share this anywhere — Instagram bio, YouTube, business cards</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:var(--space-2);">
+            <code id="shop-url" style="background:var(--gray-50);padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);font-size:var(--text-xs);color:var(--gray-600);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></code>
+            <button class="btn btn--gold btn--sm" onclick="copyShopLink()">Copy</button>
+            <a href="#" id="shop-view-link" class="btn btn--outline btn--sm" target="_blank">View</a>
+          </div>
+        </div>
+      </div>
+
       <!-- Stats -->
       <div class="stats-grid">
         <div class="stat-card stat-card--highlight">
@@ -289,6 +304,14 @@
         document.getElementById('founding-badge').style.display = 'block';
       }
 
+      // Shop link card
+      if (profile.shop_name) {
+        const shopUrl = getShopUrl(profile.shop_name);
+        document.getElementById('shop-url').textContent = shopUrl;
+        document.getElementById('shop-view-link').href = `/pages/shop.html?id=${profile.id}`;
+        document.getElementById('shop-link-card').style.display = 'block';
+      }
+
       // Fetch seller's listings
       const { data: listings, error: listingsErr } = await getSellerListings(profile.id);
 
@@ -357,6 +380,15 @@
         document.getElementById('no-orders').style.display = 'block';
       }
     })();
+
+    function copyShopLink() {
+      const url = document.getElementById('shop-url').textContent;
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.querySelector('#shop-link-card .btn--gold');
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      });
+    }
   </script>
 </body>
 </html>

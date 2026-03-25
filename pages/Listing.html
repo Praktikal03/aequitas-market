@@ -225,6 +225,84 @@
         font-size: var(--text-3xl);
       }
     }
+
+    /* Similar Items / More from Seller */
+    .related-section {
+      margin-top: var(--space-12);
+      padding-top: var(--space-8);
+      border-top: 2px solid var(--gray-100);
+    }
+    .related-section__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-5);
+    }
+    .related-section__title {
+      font-size: var(--text-xl);
+    }
+    .related-section__link {
+      font-size: var(--text-sm);
+      color: var(--coral);
+      font-weight: 600;
+    }
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--space-4);
+    }
+    .related-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-base);
+      text-decoration: none;
+      display: block;
+    }
+    .related-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
+    }
+    .related-card__image {
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: var(--gray-100);
+    }
+    .related-card__image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .related-card__image--placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--gray-300);
+      height: 100%;
+    }
+    .related-card__body {
+      padding: var(--space-3) var(--space-4);
+    }
+    .related-card__title {
+      font-weight: 600;
+      font-size: var(--text-sm);
+      color: var(--gray-800);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: var(--space-1);
+    }
+    .related-card__price {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .related-card__seller {
+      font-size: var(--text-xs);
+      color: var(--gray-400);
+    }
   </style>
 </head>
 <body>
@@ -315,6 +393,25 @@
           </div>
         </div>
       </div>
+
+      <!-- More from this Seller -->
+      <div class="related-section" id="more-from-seller" style="display:none;">
+        <div class="related-section__header">
+          <h3 class="related-section__title" id="more-seller-title">More from this Seller</h3>
+          <a href="#" class="related-section__link" id="more-seller-link">View Shop →</a>
+        </div>
+        <div class="related-grid" id="more-seller-grid"></div>
+      </div>
+
+      <!-- Similar Items -->
+      <div class="related-section" id="similar-items" style="display:none;">
+        <div class="related-section__header">
+          <h3 class="related-section__title" id="similar-title">Similar Items</h3>
+          <a href="#" class="related-section__link" id="similar-link">Browse Category →</a>
+        </div>
+        <div class="related-grid" id="similar-grid"></div>
+      </div>
+
     </div>
   </div>
 
@@ -404,6 +501,12 @@
       document.getElementById('seller-meta').textContent =
         `Selling ${getCategoryLabel(listing.category).toLowerCase()}`;
 
+      // Make seller card clickable to their shop
+      const sellerCard = document.getElementById('seller-card');
+      const sellerShopUrl = `/pages/shop.html?id=${listing.seller_id}`;
+      sellerCard.style.cursor = 'pointer';
+      sellerCard.onclick = () => window.location.href = sellerShopUrl;
+
       // If this is the seller's own listing, change buy button
       const profile = await getCurrentProfile();
       if (profile && profile.id === listing.seller_id) {
@@ -412,7 +515,51 @@
         buyBtn.onclick = () => window.location.href = `/pages/edit-listing.html?id=${listing.id}`;
         buyBtn.className = 'btn btn--secondary btn--full btn--lg';
       }
+
+      // Load related items
+      loadMoreFromSeller(listing.seller_id, listing.id, sellerName);
+      loadSimilarItems(listing.category, listing.id);
     })();
+
+    // More from this seller
+    async function loadMoreFromSeller(sellerId, excludeId, sellerName) {
+      const { data, error } = await getMoreFromSeller(sellerId, excludeId, 4);
+      if (error || !data || data.length === 0) return;
+
+      document.getElementById('more-from-seller').style.display = 'block';
+      document.getElementById('more-seller-title').textContent = `More from ${sellerName}`;
+      document.getElementById('more-seller-link').href = `/pages/shop.html?id=${sellerId}`;
+      document.getElementById('more-seller-grid').innerHTML = data.map(renderRelatedCard).join('');
+    }
+
+    // Similar items from same category
+    async function loadSimilarItems(category, excludeId) {
+      const { data, error } = await getSimilarListings(category, excludeId, 8);
+      if (error || !data || data.length === 0) return;
+
+      document.getElementById('similar-items').style.display = 'block';
+      document.getElementById('similar-title').textContent = `More in ${getCategoryLabel(category)}`;
+      document.getElementById('similar-link').href = `/pages/browse.html?category=${category}`;
+      document.getElementById('similar-grid').innerHTML = data.map(renderRelatedCard).join('');
+    }
+
+    function renderRelatedCard(item) {
+      return `
+        <a href="/pages/listing.html?id=${item.id}" class="related-card">
+          <div class="related-card__image">
+            ${item.images && item.images.length > 0
+              ? `<img src="${item.images[0]}" alt="${item.title}" loading="lazy">`
+              : `<div class="related-card__image--placeholder">📷</div>`
+            }
+          </div>
+          <div class="related-card__body">
+            <div class="related-card__title">${item.title}</div>
+            <div class="related-card__price">${formatPrice(item.price)}</div>
+            <div class="related-card__seller">${item.seller_shop_name || item.seller_name || ''}</div>
+          </div>
+        </a>
+      `;
+    }
 
     function switchImage(url, thumbEl) {
       document.getElementById('main-image').src = url;

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop — Aequitas Market</title>
+  <meta name="description" content="Shop unique items from independent sellers on Aequitas Market. Full buyer protection, fair fees, zero data selling.">
+  <meta name="robots" content="index, follow">
+  <link rel="stylesheet" href="../css/design-system.css">
+  <style>
+    /* Shop Header */
+    .shop-header {
+      background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 60%, var(--navy-mid) 100%);
+      padding: var(--space-12) 0 var(--space-10);
+      color: var(--white);
+      text-align: center;
+    }
+    .shop-header__avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: rgba(212, 168, 67, 0.15);
+      border: 3px solid var(--amber);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space-4);
+      font-family: var(--font-display);
+      font-size: var(--text-4xl);
+      font-weight: 700;
+      color: var(--amber);
+    }
+    .shop-header__name {
+      font-family: var(--font-display);
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: var(--space-2);
+    }
+    .shop-header__badges {
+      display: flex;
+      gap: var(--space-2);
+      justify-content: center;
+      margin-bottom: var(--space-4);
+    }
+    .shop-header__bio {
+      color: var(--gray-400);
+      font-size: var(--text-base);
+      max-width: 500px;
+      margin: 0 auto var(--space-5);
+      line-height: 1.6;
+    }
+    .shop-header__stats {
+      display: flex;
+      gap: var(--space-8);
+      justify-content: center;
+      margin-bottom: var(--space-5);
+    }
+    .shop-stat {
+      text-align: center;
+    }
+    .shop-stat__number {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--amber);
+    }
+    .shop-stat__label {
+      font-size: var(--text-xs);
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Share bar */
+    .share-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+    .share-bar__link {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--gray-300);
+      font-size: var(--text-xs);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: monospace;
+    }
+    .share-bar__copy {
+      background: var(--amber);
+      color: var(--navy-deep);
+      border: none;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .share-bar__copy:hover { opacity: 0.85; }
+
+    /* Shop content */
+    .shop-content {
+      padding: var(--space-8) 0 var(--space-16);
+    }
+    .shop-content__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-6);
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+    .shop-content__title {
+      font-size: var(--text-xl);
+    }
+    .shop-content__count {
+      font-size: var(--text-sm);
+      color: var(--gray-500);
+    }
+
+    /* Product Cards (reused from browse) */
+    .product-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-base);
+      text-decoration: none;
+      display: block;
+    }
+    .product-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+    .product-card__image-wrap {
+      position: relative;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: var(--gray-100);
+    }
+    .product-card__image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--transition-slow);
+    }
+    .product-card:hover .product-card__image {
+      transform: scale(1.05);
+    }
+    .product-card__image--placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: var(--gray-300);
+      width: 100%;
+      height: 100%;
+    }
+    .product-card__body {
+      padding: var(--space-4) var(--space-5) var(--space-5);
+    }
+    .product-card__category {
+      font-size: var(--text-xs);
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-1);
+    }
+    .product-card__title {
+      font-weight: 600;
+      font-size: var(--text-base);
+      color: var(--gray-800);
+      margin-bottom: var(--space-2);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .product-card__bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .product-card__price {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .product-card__shipping {
+      font-size: var(--text-xs);
+      color: var(--success);
+      margin-top: var(--space-1);
+    }
+
+    /* Trust bar */
+    .trust-bar {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-6);
+      padding: var(--space-5) 0;
+      border-top: var(--border-light);
+      margin-top: var(--space-10);
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--gray-500);
+    }
+
+    @media (max-width: 768px) {
+      .shop-header__stats { gap: var(--space-5); }
+      .share-bar { flex-direction: column; }
+      .share-bar__link { max-width: 100%; }
+      .trust-bar { flex-direction: column; align-items: center; gap: var(--space-3); }
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <!-- Loading -->
+  <div id="loading" class="empty-state" style="padding:var(--space-16) 0;">
+    <div class="spinner" style="margin:0 auto var(--space-4);"></div>
+    <p>Loading shop...</p>
+  </div>
+
+  <!-- Not found -->
+  <div id="not-found" class="empty-state" style="display:none;padding:var(--space-16) 0;">
+    <div class="empty-state__icon">🏪</div>
+    <div class="empty-state__title">Shop not found</div>
+    <div class="empty-state__text">This shop doesn't exist or hasn't been set up yet.</div>
+    <a href="/pages/browse.html" class="btn btn--primary">Browse the Market</a>
+  </div>
+
+  <!-- Shop content -->
+  <div id="shop-page" style="display:none;">
+
+    <!-- Header -->
+    <div class="shop-header">
+      <div class="container">
+        <div class="shop-header__avatar" id="shop-avatar"></div>
+        <h1 class="shop-header__name" id="shop-name"></h1>
+        <div class="shop-header__badges" id="shop-badges"></div>
+        <p class="shop-header__bio" id="shop-bio"></p>
+        <div class="shop-header__stats">
+          <div class="shop-stat">
+            <div class="shop-stat__number" id="stat-items">0</div>
+            <div class="shop-stat__label">Items</div>
+          </div>
+          <div class="shop-stat">
+            <div class="shop-stat__number" id="stat-category">—</div>
+            <div class="shop-stat__label">Specialty</div>
+          </div>
+        </div>
+
+        <!-- Share link (visible to shop owner) -->
+        <div class="share-bar" id="share-bar">
+          <span class="share-bar__link" id="share-link"></span>
+          <button class="share-bar__copy" onclick="copyShopLink()">Copy Link</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Listings -->
+    <div class="shop-content">
+      <div class="container">
+        <div class="shop-content__header">
+          <h2 class="shop-content__title" id="listings-title">All Items</h2>
+          <span class="shop-content__count" id="listings-count"></span>
+        </div>
+
+        <div class="product-grid" id="product-grid"></div>
+
+        <div id="no-listings" class="empty-state" style="display:none;">
+          <div class="empty-state__icon">📦</div>
+          <div class="empty-state__title">No items listed yet</div>
+          <div class="empty-state__text">This seller hasn't posted any items yet. Check back soon!</div>
+        </div>
+
+        <!-- Trust bar -->
+        <div class="trust-bar">
+          <div class="trust-item">
+            <span>🔒</span>
+            <span>Buyer Protection</span>
+          </div>
+          <div class="trust-item">
+            <span>🚫</span>
+            <span>Zero Data Selling</span>
+          </div>
+          <div class="trust-item">
+            <span>⚖️</span>
+            <span>Fair Fees</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container text-center" style="padding:var(--space-6) 0;">
+      <p style="font-size:var(--text-sm);margin:0;">&copy; 2026 Praktikal 03, LLC — Astoria, Oregon</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/navbar.js"></script>
+
+  <script>
+    let shopSeller = null;
+    let shopUrl = '';
+
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const sellerParam = params.get('seller');
+      const sellerIdParam = params.get('id');
+
+      if (!sellerParam && !sellerIdParam) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('not-found').style.display = 'block';
+        return;
+      }
+
+      let seller = null;
+
+      // Look up by shop name or by ID
+      if (sellerParam) {
+        // Search by shop name (case-insensitive, handles slugs with dashes)
+        const searchName = sellerParam.replace(/-/g, ' ');
+        const { data, error } = await supabaseClient
+          .from('profiles')
+          .select('*')
+          .ilike('shop_name', `%${searchName}%`)
+          .in('role', ['seller', 'admin'])
+          .limit(1);
+
+        if (data && data.length > 0) seller = data[0];
+      } else if (sellerIdParam) {
+        const { data, error } = await getSellerById(sellerIdParam);
+        seller = data;
+      }
+
+      document.getElementById('loading').style.display = 'none';
+
+      if (!seller) {
+        document.getElementById('not-found').style.display = 'block';
+        return;
+      }
+
+      shopSeller = seller;
+      document.getElementById('shop-page').style.display = 'block';
+
+      // Populate header
+      const displayName = seller.shop_name || seller.name || 'Shop';
+      document.title = `${displayName} — Aequitas Market`;
+      document.getElementById('shop-avatar').textContent = displayName.charAt(0).toUpperCase();
+      document.getElementById('shop-name').textContent = displayName;
+      document.getElementById('shop-bio').textContent = seller.bio || '';
+
+      // Badges
+      let badges = '';
+      if (seller.is_founding) {
+        badges += '<span class="badge badge--founding">Founding 100 Seller</span>';
+      }
+      if (seller.approved) {
+        badges += '<span class="badge badge--active" style="font-size:11px;">Verified Seller</span>';
+      }
+      document.getElementById('shop-badges').innerHTML = badges;
+
+      // Category
+      document.getElementById('stat-category').textContent =
+        getCategoryLabel(seller.category) || 'General';
+
+      // Shareable link
+      shopUrl = getShopUrl(displayName);
+      document.getElementById('share-link').textContent = shopUrl;
+
+      // Only show share bar to the shop owner
+      const currentProfile = await getCurrentProfile();
+      if (!currentProfile || currentProfile.id !== seller.id) {
+        document.getElementById('share-bar').style.display = 'none';
+      }
+
+      // Load listings
+      const { data: listings, error: listingsErr } = await getSellerPublicListings(seller.id);
+
+      if (!listings || listings.length === 0) {
+        document.getElementById('no-listings').style.display = 'block';
+        document.getElementById('stat-items').textContent = '0';
+        return;
+      }
+
+      document.getElementById('stat-items').textContent = listings.length;
+      document.getElementById('listings-count').textContent = `${listings.length} item${listings.length !== 1 ? 's' : ''}`;
+
+      document.getElementById('product-grid').innerHTML = listings.map(listing => `
+        <a href="/pages/listing.html?id=${listing.id}" class="product-card">
+          <div class="product-card__image-wrap">
+            ${listing.images && listing.images.length > 0
+              ? `<img src="${listing.images[0]}" alt="${listing.title}" class="product-card__image" loading="lazy">`
+              : `<div class="product-card__image--placeholder">📷</div>`
+            }
+          </div>
+          <div class="product-card__body">
+            <div class="product-card__category">${getCategoryLabel(listing.category)}</div>
+            <div class="product-card__title">${listing.title}</div>
+            <div class="product-card__bottom">
+              <div>
+                <div class="product-card__price">${formatPrice(listing.price)}</div>
+                ${listing.shipping_cost == 0
+                  ? '<div class="product-card__shipping">Free Shipping</div>'
+                  : `<div class="product-card__shipping">+${formatPrice(listing.shipping_cost)} shipping</div>`
+                }
+              </div>
+            </div>
+          </div>
+        </a>
+      `).join('');
+    })();
+
+    function copyShopLink() {
+      navigator.clipboard.writeText(shopUrl).then(() => {
+        const btn = document.querySelector('.share-bar__copy');
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy Link'; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -215,6 +215,71 @@ async function uploadListingImage(file, listingId) {
    ORDER HELPERS
    ============================================================ */
 
+// Fetch seller profile by shop slug
+async function getSellerByShopName(shopName) {
+  const { data, error } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .ilike('shop_name', shopName)
+    .eq('role', 'seller')
+    .single();
+  return { data, error };
+}
+
+// Fetch seller profile by ID
+async function getSellerById(sellerId) {
+  const { data, error } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', sellerId)
+    .single();
+  return { data, error };
+}
+
+// Fetch active listings for a specific seller (public view)
+async function getSellerPublicListings(sellerId, limit = 50) {
+  const { data, error } = await supabaseClient
+    .from('listings_with_seller')
+    .select('*')
+    .eq('seller_id', sellerId)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return { data, error };
+}
+
+// Fetch similar listings (same category, exclude current listing)
+async function getSimilarListings(category, excludeId, limit = 8) {
+  const { data, error } = await supabaseClient
+    .from('listings_with_seller')
+    .select('*')
+    .eq('category', category)
+    .eq('status', 'active')
+    .neq('id', excludeId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return { data, error };
+}
+
+// Fetch more listings from same seller (exclude current listing)
+async function getMoreFromSeller(sellerId, excludeId, limit = 4) {
+  const { data, error } = await supabaseClient
+    .from('listings_with_seller')
+    .select('*')
+    .eq('seller_id', sellerId)
+    .eq('status', 'active')
+    .neq('id', excludeId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return { data, error };
+}
+
+// Generate a shareable shop URL from shop name
+function getShopUrl(shopName) {
+  const slug = shopName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  return `https://aequitasmarket.shop/pages/shop.html?seller=${encodeURIComponent(slug)}`;
+}
+
 async function getOrdersForUser(userId, role = 'buyer') {
   const column = role === 'buyer' ? 'buyer_id' : 'seller_id';
   const { data, error } = await supabaseClient
