@@ -21,6 +21,7 @@
   <meta name="twitter:title" content="Aequitas Market — A Fair Market For Everyone">
   <meta name="twitter:description" content="Shop unique items with full buyer protection. 10% flat fee, zero data selling, ever.">
   <link rel="stylesheet" href="../css/design-system.css">
+  <link rel="stylesheet" href="../css/mobile-fixes.css">
   <style>
     .listing-page {
       padding: var(--space-8) 0 var(--space-16);
@@ -490,6 +491,11 @@
       document.getElementById('listing-condition').textContent =
         `Condition: ${getConditionLabel(listing.condition)}`;
       document.getElementById('listing-description').textContent = listing.description;
+      // Set price on sticky buy bar for mobile
+      const buySection = document.querySelector('.buy-section');
+      if (buySection && listing.price) {
+        buySection.setAttribute('data-price', formatPrice(listing.price));
+      }
 
       // Seller info
       const sellerName = listing.seller_shop_name || listing.seller_name;

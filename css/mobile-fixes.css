@@ -1,0 +1,753 @@
+/* ============================================================
+   AEQUITAS MARKET — Mobile Polish & Responsive Fixes
+   mobile-fixes.css
+   
+   INSTRUCTIONS: Add this AFTER design-system.css in every page:
+   <link rel="stylesheet" href="../css/mobile-fixes.css">
+   
+   (or /css/mobile-fixes.css from the homepage)
+   
+   This file handles all the responsive edge cases across 
+   every page. It doesn't override your design system — 
+   it fills in the gaps.
+   ============================================================ */
+
+/* ============================================================
+   GLOBAL MOBILE FOUNDATIONS
+   ============================================================ */
+
+/* Prevent horizontal scroll from any overflow */
+html, body {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better touch targets — minimum 44px per Apple/Google guidelines */
+@media (max-width: 768px) {
+  a, button, select, input[type="submit"], .btn {
+    min-height: 44px;
+  }
+  
+  /* Prevent iOS zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Safe area insets for notched phones (iPhone X+) */
+@supports (padding: env(safe-area-inset-bottom)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  .footer {
+    padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
+  }
+}
+
+
+/* ============================================================
+   NAVBAR — MOBILE FIXES
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* Tighter navbar padding on mobile */
+  .navbar__inner {
+    padding: var(--space-2) var(--space-4);
+  }
+  
+  /* Smaller logo on mobile */
+  .navbar__logo-text {
+    font-size: var(--text-sm);
+  }
+  
+  .navbar__logo-mark {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Mobile menu - full width items */
+  .navbar__links--open {
+    display: flex;
+    gap: var(--space-2);
+  }
+  
+  .navbar__links--open li {
+    width: 100%;
+  }
+  
+  .navbar__links--open .navbar__link {
+    display: block;
+    padding: var(--space-3) var(--space-2);
+    width: 100%;
+  }
+  
+  .navbar__links--open .btn {
+    width: 100%;
+    text-align: center;
+    margin-top: var(--space-2);
+  }
+  
+  /* User dropdown - full width on mobile */
+  .navbar__links--open .navbar__user-menu {
+    width: 100%;
+  }
+  
+  .navbar__links--open .navbar__user-btn {
+    width: 100%;
+    border-radius: var(--radius-md);
+    justify-content: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+  
+  /* Show username next to avatar on mobile menu */
+  .navbar__links--open .navbar__dropdown {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    width: 100%;
+    margin-top: var(--space-2);
+    box-shadow: none;
+    background: rgba(255,255,255,0.05);
+    border-radius: var(--radius-md);
+  }
+  
+  .navbar__links--open .navbar__dropdown-header {
+    color: var(--gray-300);
+  }
+  
+  .navbar__links--open .navbar__dropdown-item {
+    color: var(--gray-300);
+    padding: var(--space-3) var(--space-4);
+  }
+  
+  .navbar__links--open .navbar__dropdown-item:hover {
+    background: rgba(255,255,255,0.08);
+    color: var(--white);
+  }
+}
+
+/* Small phones (iPhone SE, etc.) */
+@media (max-width: 375px) {
+  .navbar__logo-text {
+    font-size: 12px;
+  }
+  
+  .navbar__logo-text span {
+    display: none; /* Hide "MARKET" on tiny screens, just show "AEQUITAS" */
+  }
+}
+
+
+/* ============================================================
+   LISTING DETAIL PAGE — MOBILE FIXES
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* Gallery improvements */
+  .gallery__main {
+    border-radius: 0;
+    margin-left: calc(-1 * var(--space-6));
+    margin-right: calc(-1 * var(--space-6));
+    width: calc(100% + var(--space-6) * 2);
+  }
+  
+  .gallery__thumbs {
+    padding: var(--space-2) var(--space-1);
+    gap: var(--space-2);
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .gallery__thumb {
+    width: 60px;
+    height: 60px;
+    scroll-snap-align: start;
+  }
+  
+  /* Details panel */
+  .details {
+    padding: var(--space-5);
+    box-shadow: none;
+    border-radius: 0;
+  }
+  
+  .details__title {
+    font-size: var(--text-xl);
+  }
+  
+  .details__price {
+    font-size: var(--text-2xl);
+  }
+  
+  /* Trust badges stack vertically on mobile */
+  .trust-badges {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  
+  /* Breadcrumb — scrollable, don't wrap */
+  .breadcrumb {
+    white-space: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: var(--space-2);
+    margin-left: calc(-1 * var(--space-4));
+    margin-right: calc(-1 * var(--space-4));
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+  
+  /* Seller card */
+  .seller-card {
+    padding: var(--space-3);
+  }
+  
+  .seller-card__avatar {
+    width: 40px;
+    height: 40px;
+    font-size: var(--text-base);
+  }
+}
+
+/* STICKY BUY BUTTON — Critical for mobile conversion */
+@media (max-width: 768px) {
+  .buy-section {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    padding: var(--space-3) var(--space-4);
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  
+  .buy-section .btn {
+    flex: 1;
+    margin: 0;
+  }
+  
+  /* Add price next to buy button on mobile */
+  .buy-section::before {
+    content: attr(data-price);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-xl);
+    color: var(--navy);
+    flex-shrink: 0;
+  }
+  
+  /* Remove the "secured with" text on mobile sticky bar */
+  .buy-section p {
+    display: none;
+  }
+  
+  /* Add bottom padding to page so content isn't hidden behind sticky bar */
+  .listing-page {
+    padding-bottom: calc(var(--space-16) + 80px);
+  }
+}
+
+
+/* ============================================================
+   SELLER DASHBOARD — MOBILE FIXES
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* Welcome header stacks */
+  .welcome-header .flex {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .welcome-header h1 {
+    font-size: var(--text-xl);
+  }
+  
+  .welcome-header .btn {
+    width: 100%;
+    text-align: center;
+  }
+  
+  /* Stats grid — 2 columns on mobile */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+  
+  .stat-card {
+    padding: var(--space-4);
+  }
+  
+  .stat-card__value {
+    font-size: var(--text-xl);
+  }
+  
+  .stat-card__label {
+    font-size: 11px;
+  }
+  
+  /* Listing rows — stack on mobile */
+  .listing-row {
+    flex-wrap: wrap;
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+  
+  .listing-row__image {
+    width: 52px;
+    height: 52px;
+  }
+  
+  .listing-row__title {
+    font-size: var(--text-xs);
+  }
+  
+  .listing-row__price {
+    font-size: var(--text-base);
+  }
+  
+  .listing-row__actions {
+    width: 100%;
+  }
+  
+  .listing-row__actions .btn {
+    flex: 1;
+    text-align: center;
+  }
+  
+  /* Dashboard section headers */
+  .dashboard-section__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  
+  .dashboard-section__header .btn {
+    width: 100%;
+    text-align: center;
+  }
+  
+  /* Pending banner */
+  .pending-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--space-4);
+  }
+}
+
+/* Small phones — single column stats */
+@media (max-width: 375px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ============================================================
+   CREATE/EDIT LISTING — MOBILE FIXES
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .create-page,
+  .edit-page {
+    padding: var(--space-4) var(--space-4) var(--space-16);
+  }
+  
+  .create-page h1,
+  .edit-page h1 {
+    font-size: var(--text-xl);
+  }
+  
+  .form-card {
+    padding: var(--space-5);
+    margin-bottom: var(--space-4);
+  }
+  
+  .form-card__title {
+    font-size: var(--text-base);
+  }
+  
+  /* Image upload area — compact on mobile */
+  .image-upload-area {
+    padding: var(--space-5);
+  }
+  
+  .image-upload-area__icon {
+    font-size: 2rem;
+  }
+  
+  /* Image preview grid — 3 columns on mobile */
+  .image-previews {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+  }
+  
+  /* Existing images in edit page */
+  .existing-images {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  /* Fee preview — tighter */
+  .fee-preview {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-xs);
+  }
+  
+  /* Action buttons — stack on mobile */
+  .create-page .flex.gap-4,
+  .edit-page .flex.gap-4 {
+    flex-direction: column;
+  }
+  
+  .create-page .flex.gap-4 .btn,
+  .edit-page .flex.gap-4 .btn {
+    width: 100%;
+    text-align: center;
+  }
+  
+  /* Price inputs */
+  .price-input-wrapper::before {
+    font-size: var(--text-base);
+  }
+  
+  .price-input-wrapper .form-input {
+    font-size: var(--text-base);
+  }
+  
+  /* Status bar in edit page */
+  .status-bar {
+    flex-direction: column;
+    gap: var(--space-2);
+    text-align: center;
+  }
+  
+  /* Danger zone */
+  .danger-zone {
+    padding: var(--space-4);
+    text-align: center;
+  }
+}
+
+
+/* ============================================================
+   BROWSE PAGE — MOBILE FIXES  
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* Category pills — horizontal scroll */
+  .category-pills {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    flex-wrap: nowrap;
+    padding-bottom: var(--space-2);
+    gap: var(--space-2);
+  }
+  
+  .category-pill {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    white-space: nowrap;
+    font-size: var(--text-xs);
+    padding: var(--space-2) var(--space-3);
+  }
+  
+  /* Product grid — 2 columns on mobile */
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+  
+  /* Product cards — tighter on mobile */
+  .product-card__info {
+    padding: var(--space-3);
+  }
+  
+  .product-card__title {
+    font-size: var(--text-xs);
+    -webkit-line-clamp: 2;
+  }
+  
+  .product-card__price {
+    font-size: var(--text-sm);
+  }
+  
+  .product-card__seller {
+    font-size: 10px;
+  }
+  
+  /* Search bar */
+  .browse-header {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  
+  .search-bar {
+    width: 100%;
+  }
+  
+  .sort-select {
+    width: 100%;
+  }
+}
+
+/* Single column on very small phones */
+@media (max-width: 340px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ============================================================
+   ORDERS PAGE — MOBILE FIXES
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .order-card {
+    padding: var(--space-4);
+  }
+  
+  .order-header {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  
+  .order-items {
+    gap: var(--space-3);
+  }
+  
+  .order-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+  
+  .order-item__image {
+    width: 100%;
+    height: 160px;
+    border-radius: var(--radius-md);
+  }
+  
+  .order-actions {
+    flex-direction: column;
+  }
+  
+  .order-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+
+/* ============================================================
+   SHOP/STOREFRONT PAGE — MOBILE FIXES
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .shop-header {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-4);
+  }
+  
+  .shop-avatar {
+    width: 72px;
+    height: 72px;
+    font-size: var(--text-2xl);
+  }
+  
+  .shop-stats {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .shop-actions {
+    justify-content: center;
+  }
+}
+
+
+/* ============================================================
+   AUTH PAGES (Login/Signup) — MOBILE FIXES
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .auth-page,
+  .auth-container {
+    padding: var(--space-4);
+  }
+  
+  .auth-card {
+    padding: var(--space-5);
+  }
+  
+  .auth-card h1 {
+    font-size: var(--text-xl);
+  }
+  
+  /* Founding banner on signup */
+  .founding-banner {
+    padding: var(--space-4);
+    font-size: var(--text-sm);
+  }
+}
+
+
+/* ============================================================
+   ADMIN DASHBOARD — MOBILE FIXES
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* Admin tabs — scrollable */
+  .admin-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+  
+  .admin-tab {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+  }
+  
+  /* Tables — horizontal scroll */
+  .admin-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 calc(-1 * var(--space-4));
+    padding: 0 var(--space-4);
+  }
+  
+  .admin-table {
+    min-width: 600px;
+    font-size: var(--text-xs);
+  }
+  
+  /* Modal — full screen on mobile */
+  .modal-content {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    margin: 0;
+  }
+}
+
+
+/* ============================================================
+   LEGAL PAGES (Terms, Privacy) — MOBILE FIXES
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .legal-content,
+  .terms-content,
+  .privacy-content {
+    padding: var(--space-4);
+  }
+  
+  .legal-content h1 {
+    font-size: var(--text-xl);
+  }
+  
+  .legal-content h2 {
+    font-size: var(--text-lg);
+  }
+}
+
+
+/* ============================================================
+   EMPTY STATES — MOBILE FIXES
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .empty-state {
+    padding: var(--space-8) var(--space-4);
+  }
+  
+  .empty-state__icon {
+    font-size: 2.5rem;
+  }
+  
+  .empty-state__title {
+    font-size: var(--text-lg);
+  }
+  
+  .empty-state__text {
+    font-size: var(--text-sm);
+  }
+}
+
+
+/* ============================================================
+   GENERAL UTILITY IMPROVEMENTS
+   ============================================================ */
+
+/* Container padding on mobile */
+@media (max-width: 768px) {
+  .container {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+}
+
+/* Footer on mobile */
+@media (max-width: 768px) {
+  .footer {
+    padding: var(--space-4) var(--space-4);
+  }
+  
+  .footer p {
+    font-size: 11px;
+  }
+}
+
+/* Alerts — full width on mobile */
+@media (max-width: 768px) {
+  .alert {
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+/* Badges — slightly smaller on mobile */
+@media (max-width: 768px) {
+  .badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+}
+
+/* Hide scrollbars on horizontal scroll elements but keep functionality */
+.category-pills::-webkit-scrollbar,
+.gallery__thumbs::-webkit-scrollbar,
+.breadcrumb::-webkit-scrollbar,
+.admin-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.category-pills,
+.gallery__thumbs,
+.breadcrumb,
+.admin-tabs {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

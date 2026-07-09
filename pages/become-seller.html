@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <title>Become a Seller — Aequitas Market</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a1628">
+  <link rel="stylesheet" href="../css/design-system.css">
+  <link rel="stylesheet" href="../css/mobile-fixes.css">
+  <style>
+    .become-seller-page {
+      max-width: 580px;
+      margin: 0 auto;
+      padding: var(--space-8) var(--space-6) var(--space-16);
+    }
+    .founding-banner {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      border-radius: var(--radius-md);
+      padding: var(--space-5) var(--space-6);
+      margin-bottom: var(--space-6);
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+    }
+    .founding-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(212, 168, 67, 0.15) 0%, transparent 70%);
+    }
+    .founding-banner__title {
+      font-family: var(--font-display);
+      color: var(--amber);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin-bottom: var(--space-1);
+    }
+    .founding-banner__text {
+      font-size: var(--text-sm);
+      color: var(--gray-300);
+      margin-bottom: 0;
+    }
+    .founding-banner__rate {
+      color: var(--amber-light);
+      font-weight: 600;
+    }
+    .form-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-8);
+      margin-bottom: var(--space-6);
+    }
+    .form-card__title {
+      font-size: var(--text-lg);
+      margin-bottom: var(--space-5);
+      padding-bottom: var(--space-3);
+      border-bottom: var(--border-light);
+    }
+    .already-seller {
+      text-align: center;
+      padding: var(--space-12) var(--space-6);
+    }
+    .already-seller__icon {
+      font-size: 3rem;
+      margin-bottom: var(--space-4);
+    }
+    .not-logged-in {
+      text-align: center;
+      padding: var(--space-12) var(--space-6);
+    }
+    .not-logged-in__icon {
+      font-size: 3rem;
+      margin-bottom: var(--space-4);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.3s ease; }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div class="become-seller-page">
+    <div id="loading" class="empty-state">
+      <div class="spinner" style="margin:0 auto var(--space-4);"></div>
+      <p>Loading...</p>
+    </div>
+
+    <!-- State 1: Not logged in -->
+    <div id="state-unauthenticated" style="display:none;">
+      <div class="form-card">
+        <div class="not-logged-in fade-in">
+          <div class="not-logged-in__icon">🏪</div>
+          <h2>Start Selling on Aequitas Market</h2>
+          <p style="color:var(--gray-500);margin-bottom:var(--space-6);">Create an account or sign in to get started.</p>
+          <div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap;">
+            <a href="/pages/signup.html?role=seller" class="btn btn--primary btn--lg">Create Seller Account</a>
+            <a href="/pages/login.html" class="btn btn--outline btn--lg">Sign In</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State 2: Already a seller -->
+    <div id="state-already-seller" style="display:none;">
+      <div class="form-card">
+        <div class="already-seller fade-in">
+          <div class="already-seller__icon">✅</div>
+          <h2>You're Already a Seller</h2>
+          <p style="color:var(--gray-500);margin-bottom:var(--space-6);" id="already-seller-msg"></p>
+          <a href="/pages/seller-dashboard.html" class="btn btn--primary btn--lg">Go to Your Dashboard</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- State 3: Buyer upgrading to seller -->
+    <div id="state-upgrade" style="display:none;" class="fade-in">
+      <h1 style="margin-bottom:var(--space-2);">Become a Seller</h1>
+      <p style="color:var(--gray-500);margin-bottom:var(--space-6);">Upgrade your account and start listing items.</p>
+
+      <div class="founding-banner">
+        <div class="founding-banner__title">✦ Founding 100 Seller Program</div>
+        <p class="founding-banner__text">
+          You're joining during our Founding 100 launch.
+          Lock in a <span class="founding-banner__rate">lifetime 8% fee</span> — 
+          that's 2% below our standard rate, forever.
+        </p>
+      </div>
+
+      <div id="alert-container"></div>
+
+      <form id="upgrade-form" novalidate>
+        <div class="form-card">
+          <h3 class="form-card__title">Shop Details</h3>
+
+          <div class="form-group">
+            <label for="shop-name" class="form-label form-label--required">Shop Name</label>
+            <input type="text" id="shop-name" class="form-input" placeholder="What should we call your shop?" required>
+            <span class="form-hint">This is what buyers will see</span>
+          </div>
+
+          <div class="form-group">
+            <label for="category" class="form-label form-label--required">Primary Category</label>
+            <select id="category" class="form-select" required>
+              <option value="">Select a category</option>
+              <option value="clothing">Clothing & Fashion</option>
+              <option value="electronics">Electronics & Tech</option>
+              <option value="vintage">Vintage & Antiques</option>
+              <option value="art">Art & Handmade</option>
+              <option value="collectibles">Collectibles</option>
+              <option value="general">General / Everything</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="instagram" class="form-label">Instagram Handle <span style="font-weight:400;color:var(--gray-400);">(optional)</span></label>
+            <input type="text" id="instagram" class="form-input" placeholder="@yourusername">
+          </div>
+
+          <div class="form-group">
+            <label for="bio" class="form-label">About Your Shop <span style="font-weight:400;color:var(--gray-400);">(optional)</span></label>
+            <textarea id="bio" class="form-textarea" rows="3" placeholder="A few words about what you sell..."></textarea>
+          </div>
+        </div>
+
+        <button type="submit" id="upgrade-btn" class="btn btn--primary btn--full btn--lg">
+          Become a Seller
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container text-center" style="padding:var(--space-6) 0;">
+      <p style="font-size:var(--text-sm);margin:0;">&copy; 2026 Praktikal 03, LLC — Astoria, Oregon</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/navbar.js"></script>
+
+  <script>
+    (async () => {
+      const profile = await getCurrentProfile();
+      document.getElementById('loading').style.display = 'none';
+
+      if (!profile) {
+        document.getElementById('state-unauthenticated').style.display = 'block';
+        return;
+      }
+
+      if (profile.role === 'seller' || profile.role === 'admin') {
+        document.getElementById('state-already-seller').style.display = 'block';
+        document.getElementById('already-seller-msg').textContent =
+          profile.is_founding
+            ? "You're a Founding 100 seller with a lifetime 8% rate."
+            : 'Your seller account is active.';
+        return;
+      }
+
+      document.getElementById('state-upgrade').style.display = 'block';
+      if (profile.name) {
+        document.getElementById('shop-name').placeholder = profile.name + "'s Shop";
+      }
+    })();
+
+    document.getElementById('upgrade-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('upgrade-btn');
+      const alertContainer = document.getElementById('alert-container');
+
+      const shopName = document.getElementById('shop-name').value.trim();
+      const category = document.getElementById('category').value;
+
+      if (!shopName || !category) {
+        showAlert(alertContainer, 'error', 'Please fill in shop name and category.');
+        return;
+      }
+
+      showLoading(btn, 'Upgrading...');
+
+      const user = await getCurrentUser();
+      const { error } = await supabaseClient
+        .from('profiles')
+        .update({
+          role: 'seller',
+          shop_name: shopName,
+          category: category,
+          instagram: document.getElementById('instagram').value.trim() || null,
+          bio: document.getElementById('bio').value.trim() || null,
+          is_founding: true,
+          fee_rate: 8.00,
+          approved: false
+        })
+        .eq('id', user.id);
+
+      hideLoading(btn);
+
+      if (error) {
+        showAlert(alertContainer, 'error', 'Something went wrong: ' + error.message);
+        return;
+      }
+
+      showAlert(alertContainer, 'success', "You're in! Your seller account is pending review.");
+      setTimeout(() => {
+        window.location.href = '/pages/seller-dashboard.html';
+      }, 2000);
+    });
+  </script>
+</body>
+</html>
